@@ -1,0 +1,11 @@
+/*Positioning*/
+.center{
+    width: 70%;
+    margin: 0 auto;
+}
+
+/*Text Styles*/
+.emphasized{
+    font-weight:900;
+    font-size:20px;
+}
