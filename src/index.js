@@ -1,19 +1,38 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
-import './styles.css'
+import './styles.css';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
+import Input from '@material-ui/core/Input';
+import { TextField } from '@material-ui/core';
+import { getQueriesForElement } from '@testing-library/react';
+
 
 function saveData(payload){
     axios.post('http://localhost:5000/testAPI/save',payload)
     .then(res=>{
+        console.log(res);
         alert(res.data);
+        console.log(res.data[0].url);
+        formID = res.data[0].formID;
+        console.log("formID - "+formID);
     })
     .catch(error=>{
+        console.log(error);
         alert(error);
+    })
+}
+
+function getForm(form){
+    axios.get('http://localhost:5000/testAPI/forms/'+form)
+    .then(res=>{
+        console.log(res.data);
+    })
+    .catch(error=>{
+        console.log(error)
     })
 }
 
@@ -82,6 +101,7 @@ class ConfigForm extends React.Component{
         formConfig.required = this.state.textboxRequired;
         alert(JSON.stringify(formConfig,null,2));
         saveData(formConfig);
+
      
     }
     render(){
@@ -117,12 +137,36 @@ class ConfigForm extends React.Component{
     }
 }
 
-//Main card to display form options
-class MainCard extends React.Component{
+class ViewForm extends React.Component{
     constructor(props){
-        super();
+        super(props);
+        this.state = {
+            formID:''
+        }
+        this.handleViewFormSubmit = this.handleViewFormSubmit.bind(this);
+        this.handleFormIDClick = this.handleFormIDClick.bind(this);
 
     }
+    handleFormIDClick(e){
+        this.setState({formID:formID});
+    }
+    handleViewFormSubmit(e){
+        getForm(this.state.formID);
+    }
+    render(){
+
+        return(
+            <form onSubmit={this.handleViewFormSubmit}>
+                <TextField id="outlined-basic" label="Click to see form URL" variant="outlined" value={this.state.formID} onClick={this.handleFormIDClick}/>
+                <Button type="submit" size="small">View Form</Button>
+            </form>
+           
+        );
+    }
+}
+
+//Main card to display form options
+class MainCard extends React.Component{
     // callAPI(){
     //     fetch('http://localhost:5000/testAPI')
     //     .then(res=>res.text())
@@ -134,6 +178,7 @@ class MainCard extends React.Component{
     render(){
         return(
             <Card className="center">
+                <ViewForm/>
                 <ConfigForm />
             </Card>
         )
@@ -150,6 +195,7 @@ class App extends React.Component{
 }
 
 let formConfig = {};
+let formID = '';
 
 ReactDOM.render(
     <App />,
