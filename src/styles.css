@@ -1,11 +1,16 @@
 /*Positioning*/
 .center{
     width: 70%;
-    margin: 0 auto;
+    margin: 20px auto;
 }
 
 /*Text Styles*/
 .emphasized{
     font-weight:900;
     font-size:20px;
+}
+
+/*Design styles*/
+.padding{
+    padding: 16px !important;
 }
