@@ -56,7 +56,7 @@ class ConfigForm extends React.Component{
         super();
         this.state = {
             formFields:[
-                {label:'', required:false}
+                {label:'', required:false, type:"text"}
             ],
             formID:'',
             fieldIsVisible:false
@@ -69,7 +69,7 @@ class ConfigForm extends React.Component{
     //Calls selected form component
     handleFormElementClick(){ 
         const values = [...this.state.formFields]
-        values.push({label:'', required:false});
+        values.push({label:'', required:false, type:"text"});
         this.setState({
             formFields: values,
             fieldIsVisible: true

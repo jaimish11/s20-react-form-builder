@@ -16,6 +16,11 @@ class SubmittedForm extends React.Component{
         super();
         this.state = {
             newTextFieldValue:'',
+            formFieldData:[{
+                entries:[
+                    
+                ]
+            }],
             form:'',
             formIsSubmitted: false
 
@@ -24,7 +29,21 @@ class SubmittedForm extends React.Component{
         this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
     }
     componentDidMount(){
-        this.setState({form:this.props.form});
+        let formToRender = [...this.props.form];
+        let noOfFormFields = this.props.form[0].fields.length;
+        let formFieldData = [...this.state.formFieldData]
+        console.log(formToRender);
+        for(let i=0;i<noOfFormFields;i++){
+            let label = formToRender[0]['fields'][i]['label'];
+            formFieldData[0]['entries'].push({
+                [label]: ''
+            });
+        }
+        this.setState({
+            form:this.props.form,
+            formFieldData:formFieldData
+        });
+        
     }
     handleFormSubmit(e){
         e.preventDefault();
@@ -32,6 +51,11 @@ class SubmittedForm extends React.Component{
             formIsSubmitted: true
         })
         console.log(this.state.form[0].label)
+        let formDataToSave = [];
+        let formFieldConfig = {}
+        this.state.form[0].fields.map(field=>{
+           formFieldConfig[field.label] = this.state.form 
+        })
         api.saveData(
         {
             formID:this.state.form[0].formID, 
@@ -46,23 +70,30 @@ class SubmittedForm extends React.Component{
             console.log(error);
         })  
     }
-    handleTextFieldChange(e){
-        this.setState({
-            newTextFieldValue:e.target.value
-        })
+    handleTextFieldChange(index, event){
+        // this.setState({
+        //     newTextFieldValue:e.target.value
+        // })
+        const values = [...this.state.formFieldData];
+        console.log(values[0]['entries'][index][event.target.name]);
+        values[0]['entries'][index][event.target.name] = event.target.value;
+        this.setState({ formFieldData:values });
     }
     render(){
-        let field;
-        if(this.state.form){
-            if(this.state.form[0].type==="text"){
-                field = <TextField id="outlined-basic" value={this.state.newTextFieldValue} onChange={this.handleTextFieldChange} type={this.state.form[0].type} label={this.state.form[0].label} variant="outlined" required={this.state.form[0].required}/>
-            }
+        let fields = [];
+        if(this.state.form.length > 0){
+            this.state.form[0].fields.map((field, index)=>{
+                if(field.type === "text"){
+                    fields.push(<div key={index}><TextField  id="outlined-basic" value={this.state.formFieldData[0]['entries'][index][field.label]} onChange={event=>this.handleTextFieldChange(index,event)} type={field.type} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
+                }
+            })
         }
+
         return(
             <Card>
                 <form onSubmit={this.handleFormSubmit}>
                     <CardContent>
-                        {field}
+                        {fields}
                     </CardContent>
                     <CardActions className="padding">
                         <Button type="submit" size="small" color="primary" variant="contained">Submit Form</Button>  
@@ -96,7 +127,6 @@ export default class ViewForm extends React.Component{
         })
     }
     handleViewFormSubmit(e){
-        alert(this.state.formID);
         e.preventDefault();
         api.getForm(this.state.formID)
         .then(form=>{
