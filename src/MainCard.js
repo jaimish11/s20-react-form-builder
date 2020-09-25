@@ -15,6 +15,13 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import history from './history';
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    Link,
+    Redirect
+} from "react-router-dom";
 import api from './api';
 
 
@@ -149,12 +156,11 @@ class ConfigForm extends React.Component{
         )
     }
     render(){
-        // if(this.state.formID){
-        //     // let redirectURL = `/s20/view-form/${this.state.formID}`;
-        //     // history.push(redirectURL);
-        //     // return <Redirect to={{ pathname:redirectURL, state:this.state.formID}} />
-        //     savedFormID = this.state.formID
-        // }
+        if(this.state.formID){
+            let redirectURL = `/s20/view-form/${this.state.formID}`;
+            history.push(redirectURL);
+            return <Redirect to={{ pathname:redirectURL, state:this.state.formID}} />
+        }
         return(
             <div>
                 <form onSubmit={this.handleConfigFormSubmit}>
@@ -207,13 +213,10 @@ class Entries extends React.Component{
             form:this.props.form
         }
     }
-    // componentDidMount(){
-    //     alert('set state');
-    //     this.setState({
-    //         form:this.props.form
-    //     })
+    componentDidMount(){
+       console.log('mounted');
       
-    // }
+    }
     render(){
         return(
             <div className="padding">
@@ -227,7 +230,7 @@ class Entries extends React.Component{
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.form.map((row, index)=>(
+                            {this.state.form[0].form[0]['entries'].map((row, index)=>(
                                 
                                 Object.keys(row).map((field)=>(
                                     <TableRow key={index}>
@@ -263,12 +266,15 @@ class ViewSubmissions extends React.Component{
         this.setState({formID:e.target.value});
     }
     handleSubmissionsFormSubmit(e){
+        alert('got data');
         e.preventDefault();
+       
         api.getForm(this.state.formID, true)
         .then(form=>{
             this.setState({
                 formData:form
             });
+           
 
 
         })

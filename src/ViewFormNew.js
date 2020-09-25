@@ -3,13 +3,20 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
+import Checkbox from '@material-ui/core/Checkbox';
+import Radio from '@material-ui/core/Radio';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import api from './api';
 import { TextField } from '@material-ui/core';
-
+import history from './history';
+import {
+    BrowserRouter as Router,
+    Redirect
+} from "react-router-dom";
 
 /**
- * Submit data with form that user created
- */
+* Submit data with form that user created
+*/
 class SubmittedForm extends React.Component{
 
     constructor(props){
@@ -27,6 +34,8 @@ class SubmittedForm extends React.Component{
         }
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
+        this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+        this.handleRadioChange = this.handleRadioChange.bind(this);
     }
     componentDidMount(){
         let formToRender = [...this.props.form];
@@ -65,12 +74,21 @@ class SubmittedForm extends React.Component{
         })  
     }
     handleTextFieldChange(index, event){
-        // this.setState({
-        //     newTextFieldValue:e.target.value
-        // })
         const values = [...this.state.formFieldData];
         console.log(values[0]['entries'][index][event.target.name]);
         values[0]['entries'][index][event.target.name] = event.target.value;
+        this.setState({ formFieldData:values });
+    }
+    handleCheckboxChange(index, event){
+        const values = [...this.state.formFieldData];
+        console.log(values[0]['entries'][index][event.target.name]);
+        values[0]['entries'][index][event.target.name] = event.target.checked;
+        this.setState({ formFieldData:values });
+    }
+    handleRadioChange(index, event){
+        const values = [...this.state.formFieldData];
+        console.log(values[0]['entries'][index][event.target.name]);
+        values[0]['entries'][index][event.target.name] = event.target.checked;
         this.setState({ formFieldData:values });
     }
     render(){
@@ -80,9 +98,29 @@ class SubmittedForm extends React.Component{
                 if(field.type === "text"){
                     fields.push(<div key={index}><TextField  id="outlined-basic" value={this.state.formFieldData[0]['entries'][index][field.label]} onChange={event=>this.handleTextFieldChange(index,event)} type={field.type} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
                 }
+                else if(field.type === "checkbox"){
+                    fields.push(<div key={index}>
+                    <FormControlLabel 
+                        label={field.label} labelPlacement="start" 
+                        control={<Checkbox color="primary" value={this.state.formFieldData[0]['entries'][index][field.label]} onChange={event=>this.handleCheckboxChange(index,event)} type={field.type} name={field.label} checked={field.checked}/>}>
+                    </FormControlLabel>
+                    <br/></div>)
+                }
+                else if(field.type === "radio"){
+                    fields.push(<div key={index}>
+                    <FormControlLabel 
+                        label={field.label} labelPlacement="start" 
+                        control={<Radio color="primary" value={this.state.formFieldData[0]['entries'][index][field.label]} onChange={event=>this.handleRadioChange(index,event)} type={field.type} name={field.label} checked={field.checked}/>}>
+                    </FormControlLabel>
+                    <br/></div>)
+                }
             })
         }
-
+        if(this.state.formID){
+            let redirectURL = `/s20/view-submissions/${this.state.formID}`;
+            history.push(redirectURL);
+            return <Redirect to={{ pathname:redirectURL, state:this.state.formID}} />
+        }
         return(
             <Card>
                 <form onSubmit={this.handleFormSubmit}>
@@ -93,9 +131,6 @@ class SubmittedForm extends React.Component{
                         <Button type="submit" size="small" color="primary" variant="contained">Submit Form</Button>  
                     </CardActions>
                 </form>
-                {this.state.formIsSubmitted && 
-                    <p>Form Submitted Successfully</p>
-                }
 
             </Card>
 
@@ -103,17 +138,24 @@ class SubmittedForm extends React.Component{
     }
 }
 
-export default class ViewForm extends React.Component{
+
+export default class ViewFormNew extends React.Component{
     constructor(props){
         super(props);
+        const { match } = props;
+        const { params } = match;
+        const { form } = params;
         this.state = {
-            formID:'',
+            formID:form,
             formData:'',
             redirect:''
         }
         this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
         this.handleViewFormSubmit = this.handleViewFormSubmit.bind(this);
 
+    }
+    componentDidMount(){
+        console.log(this.state.form);
     }
     handleTextFieldChange(e){
         this.setState({
@@ -124,13 +166,10 @@ export default class ViewForm extends React.Component{
         e.preventDefault();
         api.getForm(this.state.formID)
         .then(form=>{
-            alert(JSON.stringify(form,null,2));
             this.setState({
                 formData:form[0]
 
             })
-            //this.props.onViewFormSubmit(this.state.formData);
-
         })
         .catch(error=>{
             alert(error);

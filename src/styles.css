@@ -14,3 +14,14 @@
 .padding{
     padding: 16px !important;
 }
+.flex-rows{
+    display: flex;
+    flex-direction: column;
+}
+
+/*Component Styles*/
+.header{
+    display: flex;
+    flex: 1;
+    justify-content: space-evenly;
+}
