@@ -25,3 +25,7 @@
     flex: 1;
     justify-content: space-evenly;
 }
+
+.MuiSelect-select{
+    padding-right:70px;
+}

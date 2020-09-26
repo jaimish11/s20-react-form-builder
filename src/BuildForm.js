@@ -117,9 +117,7 @@ class ConfigForm extends React.Component{
             }
             
         }
-        
-    
-           
+   
         this.setState({ formFields:values });
     }
 
