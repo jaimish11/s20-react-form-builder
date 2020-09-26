@@ -16,7 +16,7 @@ import {
 export default class App extends React.Component{
     render(){
         return(
-            <div>
+            <div className="padding-1">
                 <Header/>
                 <Switch>
                         <Redirect exact from="/s20" to="/s20/build-form" />

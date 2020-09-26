@@ -3,6 +3,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
 import { withRouter } from "react-router-dom";
+import Link from '@material-ui/core/Link';
 import history from './history';
 import './styles.css';
 
@@ -23,7 +24,7 @@ class Header extends React.Component{
             <div>
                 <AppBar position="static">
                     <Toolbar>
-                    <div className="header">
+                    {/* <div className="header">
                         <Button
                             variant="contained"
                             onClick={() => this.handleButtonClick("/s20/build-form")}
@@ -42,6 +43,26 @@ class Header extends React.Component{
                         >
                             VIEW SUBMISSIONS
                         </Button>
+                    </div> */}
+                    <div className="header">
+                            <Link href="#" color="inherit" exact activeStyle={{color:"black"}}
+                                variant="contained"
+                                onClick={() => this.handleButtonClick("/s20/build-form")}
+                            >
+                                BUILD FORM
+                            </Link>
+                            <Link href="#" color="inherit" exact activeStyle={{color:"black"}}
+                                variant="contained"
+                                onClick={() => this.handleButtonClick("/s20/view-form")}
+                            >
+                                VIEW FORM
+                            </Link>
+                            <Link href="#" color="inherit" exact activeStyle={{color:"black"}}
+                                variant="contained"
+                                onClick={() => this.handleButtonClick("/s20/view-submissions")}
+                            >
+                                VIEW SUBMISSIONS
+                            </Link>
                         </div>
                     </Toolbar>
                 </AppBar>

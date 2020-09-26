@@ -29,14 +29,15 @@ class SubmittedForm extends React.Component{
     constructor(props){
         super();
         this.state = {
-            newTextFieldValue:'',
             formFieldData:[{
                 entries:[
                     
                 ]
             }],
             form:'',
-            formIsSubmitted: false
+            formIsSubmitted: false,
+            formID:''
+
         }
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.findSelected = this.findSelected.bind(this);
@@ -45,23 +46,23 @@ class SubmittedForm extends React.Component{
     }
     findSelected(index){
         const values = [...this.state.formFieldData];
+        let preselectedOption = '';
         values[0]['entries'][index]['choices'].forEach(choice=>{
            Object.keys(choice).forEach(key=>{
                if(choice[key] === true) {
-                   console.log(choice['label']);
-                   return choice['label'];
+                   preselectedOption = key;
                }
            })
        })
+       return preselectedOption;
     }
     componentDidMount(){
-
+        
         //Form JSON to render on frontend
         let formToRender = [...this.props.form];
         let noOfFormFields = this.props.form[0].fields.length;
         //Form JSON to store entered form values
         let formFieldData = [...this.state.formFieldData]
-        console.log(formToRender);
         for(let i=0;i<noOfFormFields;i++){
             let label = formToRender[0]['fields'][i]['label'];
             let type = formToRender[0]['fields'][i]['type'];
@@ -87,7 +88,7 @@ class SubmittedForm extends React.Component{
                 case "dropdown":
                     formFieldData[0]['entries'].push({
                         label:label,
-                        required: formToRender[0]['fields'][i]['required'],
+                        // required: formToRender[0]['fields'][i]['required'],
                         choices:[]
                     });
                     formToRender[0]['fields'][i]['choices'].forEach(choice=>{
@@ -106,6 +107,7 @@ class SubmittedForm extends React.Component{
         });
         
     }
+    
     handleFormSubmit(e){
         e.preventDefault();
         this.setState({
@@ -118,7 +120,9 @@ class SubmittedForm extends React.Component{
         }
         ,true)
         .then(res=>{
-            console.log(res);
+            this.setState({
+                formID:res.data.formID
+            })
 
         })
         .catch(error=>{
@@ -174,28 +178,28 @@ class SubmittedForm extends React.Component{
         if(this.state.form.length > 0){
             this.state.form[0].fields.map((field, index)=>{
                 if(field.type === "text"){
-                    fields.push(<div key={index}><TextField  id="outlined-basic" value={this.state.formFieldData[0]['entries'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
+                    fields.push(<div key={index} className="width80 margin-top-1"><TextField fullWidth id="outlined-basic" value={this.state.formFieldData[0]['entries'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
                 }
                 else if(field.type === "checkbox"){
-                    fields.push(<div key={index}>
+                    fields.push(<div className="margin-top-2" key={index}>
                     <FormControl component="fieldset">
                         <FormLabel component="legend">{field.label}</FormLabel>
                         <FormGroup>
                             {field.choices.map((choice,choiceIndex)=>(
-                                <FormControlLabel key={choice+choiceIndex} label={choice.label} labelPlacement="start" 
-                                control={<Checkbox color="primary" type={field.type} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} value={choice.label} checked={this.state.formFieldData[0]['entries'][index]['choices'][choiceIndex].selected}/>} />
+                                <FormControlLabel key={choice+choiceIndex} label={choice.label} labelPlacement="end" 
+                                control={<Checkbox color="primary" type={field.type} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} value={choice.label} checked={this.state.formFieldData[0]['entries'][index]['choices'][choiceIndex][choice.label]}/>} />
                             ))}  
                         </FormGroup>     
                     </FormControl>
                     <br/></div>)
                 }
                 else if(field.type === "radio"){
-                    fields.push(<div key={index}>
+                    fields.push(<div className="margin-top-2" key={index}>
                     <FormControl component="fieldset" required={field.required}>
                         <FormLabel component="legend">{field.label}</FormLabel>
                         <RadioGroup name={field.label} value={field.label} >
                             {field.choices.map((choice,choiceIndex)=>(
-                                <FormControlLabel key={choice + choiceIndex}  label={choice.label} value={choice.label} name={choice.label} labelPlacement="start" 
+                                <FormControlLabel key={choice + choiceIndex}  label={choice.label} value={choice.label} name={choice.label} labelPlacement="end" 
                                 control={<Radio onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} checked={this.state.formFieldData[0]['entries'][index]['choices'][choiceIndex][choice.label]}/>} />
                             ))}  
                         </RadioGroup>     
@@ -203,11 +207,12 @@ class SubmittedForm extends React.Component{
                     <br/></div>)
                 }
                 else if(field.type === "dropdown"){
-                    fields.push(<div key={index}>
+                    fields.push(<div className="margin-top-2" key={index}>
                         <FormControl required={field.required}>
                             <InputLabel>{field.label}</InputLabel>
                             <Select onChange={event=>this.handleChange(index, null, field.type, event)}
                                 value={this.findSelected(index)}>
+                                {console.log('select value--'+this.findSelected(index))}
                                 {field.choices.map((choice,choiceIndex)=>(
                                     <MenuItem key={choice + choiceIndex} value={choice.label}>{choice.label}</MenuItem>
                                 ))}
@@ -223,17 +228,20 @@ class SubmittedForm extends React.Component{
             return <Redirect to={{ pathname:redirectURL, state:this.state.formID}} />
         }
         return(
-            <Card>
+            <div>
+                <p>Your Form</p>
                 <form onSubmit={this.handleFormSubmit}>
                     <CardContent>
                         {fields}
                     </CardContent>
                     <CardActions className="padding">
-                        <Button type="submit" size="small" color="primary" variant="contained">Submit Form</Button>  
+                        <Button type="submit" size="large" color="primary" variant="contained">Submit Form</Button>  
                     </CardActions>
                 </form>
+            </div>
+                
 
-            </Card>
+           
 
         );
     }
@@ -249,14 +257,21 @@ export default class ViewFormNew extends React.Component{
         this.state = {
             formID:form,
             formData:'',
-            redirect:''
+            redirect:'',
+            formsStore:[],
+            newFormRequested:false
         }
         this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
         this.handleViewFormSubmit = this.handleViewFormSubmit.bind(this);
+        this.handleOnClick = this.handleOnClick.bind(this);
+
 
     }
+   
     componentDidMount(){
-        console.log(this.state.form);
+        if(this.state.formID){
+            document.getElementById('view-form-btn').click();
+        }
     }
     handleTextFieldChange(e){
         this.setState({
@@ -276,22 +291,54 @@ export default class ViewFormNew extends React.Component{
             alert(error);
         })
     }
+
+    handleOnClick(e){
+        e.preventDefault();
+        api.getForm(this.state.formID)
+        .then(form=>{
+            
+            this.setState({
+                formData:form[0]
+
+            })
+
+        })
+        .catch(error=>{
+            alert(error);
+        })
+    }
     render(){
+        // console.log('inside ViewFormNew render()');
+        // let noOfFormsViewed = this.state.formsStore.length;
+        // if((noOfFormsViewed >= 2 ) && JSON.stringify(this.state.formsStore[noOfFormsViewed-1]) !== JSON.stringify(this.state.formsStore[noOfFormsViewed-2])){
+        //     console.log('new form requested');
+        //     console.log(this.state.formData);
+        //     this.setState({
+        //         newFormRequested:true
+        //     })
+        // }
         let form = [];
         if(this.state.formData){
             form.push(this.state.formData);
         }
+
+       
         return(
             <Card className="center">
-                <form onSubmit={this.handleViewFormSubmit}>
+                <form /*onSubmit={this.handleViewFormSubmit}*/>
                     <CardContent>
-                        <TextField id="outlined-basic" label="Enter form ID" variant="outlined" value={this.state.formID} onChange={this.handleTextFieldChange}/> 
+                        <div class="flex-rows">
+                            <TextField className="flex-1" id="outlined-basic" label="Enter form ID" variant="outlined" value={this.state.formID} onChange={this.handleTextFieldChange}/> 
+                            
+                            <Button className="flex-1 margin-left-1" id="view-form-btn" type="submit" size="large" color="primary" variant="contained" onClick={this.handleOnClick}>View Form</Button>
+                            <div className="flex-1"></div>
+                        </div>
+   
                     </CardContent>
-                    <CardActions className="padding">
-                        <Button type="submit" size="small" color="primary" variant="contained">View Form</Button>
-                    </CardActions>
+                   
                 </form>
                 <CardContent>
+                    {/* {(this.state.newFormRequested || this.state.formsStore.length > 0) && <SubmittedForm form={[this.state.formData]}/>} */}
                     {form.length > 0 && <SubmittedForm form={form}/>}
                 </CardContent>
             </Card>

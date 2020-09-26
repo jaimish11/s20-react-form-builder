@@ -4,49 +4,92 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import { TextField } from '@material-ui/core';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import api from './api';
+
+class EntriesAccordion extends React.Component{
+
+    constructor(props){
+        super(props);
+        this.state = {
+            forms:this.props.forms
+        }
+    }
+    render(){
+        let accordionGroup = [];
+        this.state.forms.forEach((form, index)=>(
+            accordionGroup.push(
+                <Accordion key={index}>
+                <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                >
+                <Typography>{`Form#${index} - ${form.timestamp.replace('T',' --- ')}`}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    {form.form[0]['entries'].map(entry=>{
+                        {/* console.log(entry) */}
+                        {/* formEntries.push(<p>{entry.toString()}</p>); */}
+                        return(Object.keys(entry).map(key=>{
+                            return(
+                               
+                                    <div className="margin-top-half">
+                                        {key !== "choices" && key !== "label" &&
+                                            `${key}:${entry[key]}`
+                                        }
+                                        {
+                                            key === "label" &&
+                                            <span className="underline">{`${entry[key]}`}</span>
+                                        }
+                                        {key === "choices" &&
+                                            entry[key].map(choice=>{
+                                                return(
+                                                   Object.keys(choice).map(option=>{
+                                                       return(
+                                                           <div key={option} className="left-indent20">
+                                                            {choice[option] == true && `${option}`}
+                                                           </div>  
+                                                        );
+                                                   }) 
+                                                );
+                                            })
+                                        }
+                                    </div>
+                              
+                            );
+                                
+                        }));
+                    })}
+                    {/* {formFields.map(entry=>entry)} */}
+                </AccordionDetails>
+                </Accordion>     
+            )
+          
+        ));
+
+       return(
+           <div>
+           {accordionGroup.map(accordion=>accordion)}
+           </div>
+        );
+    }
+}
 
 class Entries extends React.Component{
     constructor(props){
         super(props);
         this.state={
-            form:this.props.form
+            forms:this.props.form
         }
     }
     render(){
         return(
             <div className="padding">
                 <p>Form Entries</p>
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell align="right">Label</TableCell>
-                                <TableCell align="right">Value</TableCell>  
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {this.state.form[0].form[0]['entries'].map((row, index)=>(
-                                
-                                Object.keys(row).map((field)=>(
-                                    <TableRow key={index}>
-                                        <TableCell align="right">{field}</TableCell>
-                                        <TableCell align="right">{(row[field]).toString()}</TableCell>
-                                    </TableRow>
-                                ))
-                            
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-
+                <EntriesAccordion forms={this.state.forms}/> 
             </div>
            
         );
@@ -67,6 +110,11 @@ export default class FormSubmissions extends React.Component{
         this.handleSubmissionsFormSubmit = this.handleSubmissionsFormSubmit.bind(this);
         this.handleFormIDChange = this.handleFormIDChange.bind(this);
 
+    }
+    componentDidMount(){
+        if(this.state.formID){
+            document.getElementById('view-submissions-btn').click();
+        }
     }
     handleFormIDChange(e){
         this.setState({formID:e.target.value});
@@ -89,11 +137,13 @@ export default class FormSubmissions extends React.Component{
             <Card className="center">
                 <form onSubmit={this.handleSubmissionsFormSubmit}>
                     <CardContent>
-                        <TextField id="outlined-basic" label="Enter form ID" variant="outlined" value={this.state.formID} onChange={this.handleFormIDChange}/>
+                    <div className="flex-rows">
+                        <TextField className="flex-1" id="outlined-basic" label="Enter form ID" variant="outlined" value={this.state.formID} onChange={this.handleFormIDChange}/>
+                        <Button className="flex-1 margin-left-1" id="view-submissions-btn" type="submit" size="large" color="primary" variant="contained">View Form Submissions</Button>
+                        <div className="flex-1"></div>
+                    </div>
+                        
                     </CardContent>
-                    <CardActions className="padding">
-                        <Button type="submit" size="small" color="primary" variant="contained">View Form Submissions</Button>
-                    </CardActions>
                 </form>
                 {this.state.formData && <Entries form={this.state.formData}/>}
             </Card>

@@ -1,8 +1,35 @@
-/*Positioning*/
-.center{
-    width: 70%;
-    margin: 20px auto;
+html{
+    height:100%;
+    width:100%
 }
+body{
+    margin:0 !important;
+    height:inherit;
+    width:inherit;
+}
+#root{
+    height:inherit;
+    width:inherit;
+}
+
+
+
+
+
+/*Positioning*/
+@media (min-width:769px){
+    .center{
+        width: 50%;
+        margin: 20px auto;
+    }
+}
+
+@media (max-width:769px){
+    .padding-1{
+        padding:1em;
+    }
+}
+
 
 /*Text Styles*/
 .emphasized{
@@ -14,10 +41,67 @@
 .padding{
     padding: 16px !important;
 }
-.flex-rows{
+.flex-cols{
     display: flex;
     flex-direction: column;
 }
+
+.flex-rows{
+    display: flex;
+    flex-direction: row;
+}
+.flex-1{
+    flex:1 1 0px;
+}
+.space-between{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.justify-start{
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    justify-content: flex-start;
+}
+.valign-center{
+    align-items:center;
+}
+.valign-start{
+    align-items:start;
+}
+.no-margin-left{
+    margin-left:0px !important;
+}
+.left-indent20{
+    padding-left: 20px;
+}
+.margin-left-1{
+    margin-left:1em !important;
+}
+.margin-top-2{
+    margin-top: 2em !important;
+}
+.margin-top-half{
+    margin-top: 0.5em !important;
+}
+.margin-top-1{
+    margin-top: 1em !important;
+}
+.width80{
+    width:80% !important;
+}
+.width60{
+    width:60% !important;
+}
+.underline{
+    border-bottom: 2px solid black;
+}
+.active{
+    border-bottom: 2px solid white;
+}
+
+
 
 /*Component Styles*/
 .header{
@@ -28,4 +112,7 @@
 
 .MuiSelect-select{
     padding-right:70px;
+}
+.MuiAccordionDetails-root{
+    flex-direction: column;
 }

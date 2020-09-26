@@ -1,11 +1,14 @@
 import React from 'react';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
+import Grid from '@material-ui/core/Grid';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
-import CloseIcon from '@material-ui/icons/Close';
-import AddIcon from '@material-ui/icons/Add';
+import CancelSharpIcon from '@material-ui/icons/CancelSharp';
+import AddCircleSharpIcon from '@material-ui/icons/AddCircleSharp';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Collapse from '@material-ui/core/Collapse';
 import { TextField } from '@material-ui/core';
 import stringUtility from './stringUtility';
 import api from './api';
@@ -40,7 +43,6 @@ class ConfigForm extends React.Component{
             break;
             case "checkbox":
                 values.push({label:'', type:fieldType, choices:[{label:'', selected:false}]});
-                break;
             break;
             case "radio":
                 values.push({label:'', required:false, type:fieldType, choices:[{label:'', selected:false}]});
@@ -150,102 +152,197 @@ class ConfigForm extends React.Component{
             <div>
                 <form onSubmit={this.handleConfigFormSubmit}>
                     <CardContent>
-                        <Card>
-                            <CardContent >
-                                <div className="flex-rows">
+                        
+                                <div className="flex-cols">
                                     Add Field:
                                     <a href="#" id="singleLineText" onClick={event=>this.handleFormElementClick("text")}>Single Line Text</a>
                                     <a href="#" id="checkboxField" onClick={event=>this.handleFormElementClick("checkbox")}>Checkbox</a>
                                     <a href="#" id="radioField" onClick={event=>this.handleFormElementClick("radio")}>Radio</a>
                                     <a href="#" id="dropdownField" onClick={event=>this.handleFormElementClick("dropdown")}>Dropdown</a>
                                 </div>
-                            </CardContent>
-                        </Card>
                        
                         {this.state.formFields.map((field, index)=>(
-                            <Card key={`${field.type}-${index}`}>
-                                <CardContent>
+                            
+                            <div key={`${field.type}-${index}`}>
+                               
                                 { field.type === "text" &&
-                                    <div>
-                                        <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
-                                        <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
-                                        Required?<Checkbox checked={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />
-                                        Remove <CloseIcon style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
-                                    </div> 
+                                    
+                                        <div>
+                                            <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
+                                            <div className="space-between">
+                                                <div className="flex-cols width80">
+                                                    <TextField fullWidth  variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
+                                                    <div className="options flex-rows" >
+                                                        <FormControlLabel
+                                                            label="Required?" labelPlacement="start" className="no-margin-left"
+                                                            control={<Checkbox checked={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />}>
+                                                        </FormControlLabel>
+                                                            
+                                                    </div>
+                                                </div>
+                                                <div className="field-control flex-rows valign-start">
+                                                <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
+                                                </div>
+                                            </div>
+                                            
+                                        
+                                        </div> 
+                                   
                                 }
 
                                 { field.type === "checkbox" &&
                                     <div>
                                         <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
-                                        <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
-                                        Remove <CloseIcon style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
-                                        <Card>
+                                        <div className="space-between">
+                                            <div className="flex-cols width80">
+                                                <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
+                                            </div>
+                                            <div className="field-control flex-rows valign-start">
+                                                <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
+                                            </div>
+                                            
+                                        </div>
+                                        <div>
                                             {field['choices'].length > 0 && 
-                                                field['choices'].map((choice, choiceIndex)=>(
-                                                    <CardContent key={`${field.type}-${index}-choice-${choiceIndex}`}>
-                                                        <TextField variant="outlined" type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
-                                                        Selected?<Checkbox checked={choice.selected} name="choice-selected-checkbox" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />
-                                                        Add Choice<AddIcon  style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
-                                                        Remove Choice<CloseIcon style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
-                                                    </CardContent>
-                                                ))
-                                            }
+                                                    field['choices'].map((choice, choiceIndex)=>(
+                                                        
+                                                            <CardContent key={`${field.type}-${index}-choice-${choiceIndex}`}>
+                                                                <div className="justify-start">
+                                                                    <div className="flex-cols width60">
 
-                                           
-                                        </Card>
+                                                                    <TextField variant="outlined" type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
+                                                                    <div className="options flex-rows" >
+                                                                        <FormControlLabel
+                                                                            label="Selected?" labelPlacement="start" className="no-margin-left"
+                                                                            control={<Checkbox checked={choice.selected} name="choice-selected-checkbox" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />}>
+                                                                    
+                                                                        </FormControlLabel>
+
+                                                                    </div>
+                                                                </div>
+                                                                    <div className="field-control flex-rows margin-left-1" >
+                                                                            <AddCircleSharpIcon color="primary" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
+                                                                            <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
+                                                                    </div>
+                                                                
+                                                                </div>   
+                                                            </CardContent>
+                                                      
+                                                        
+                                                    ))
+                                            }
+                                        </div>      
                                        
                                     </div>
                                 }
                                 { field.type === "radio" &&
                                     <div>
                                         <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
-                                        <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
-                                        Required<Checkbox checkbox={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />
-                                        Remove <CloseIcon style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
-                                        <Card>
+                                        <div className="space-between">
+                                            <div className="flex-cols width80">
+                                                <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
+                                                <div className="options flex-rows" >
+                                                    <FormControlLabel
+                                                        label="Required?" labelPlacement="start" className="no-margin-left"
+                                                        control={<Checkbox checkbox={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />}>
+                                                    </FormControlLabel> 
+                                                </div>
+                                            </div>
+                                            <div className="field-control flex-rows valign-start">
+                                                <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
+                                            </div>
+
+                                        </div>
+                                        <div>
                                             {field['choices'].length > 0 && 
-                                                field['choices'].map((choice, choiceIndex)=>(
-                                                    <CardContent key={`${field.type}-${index}-choice-${choiceIndex}`}>
-                                                        <TextField variant="outlined" type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
-                                                        Selected?<Checkbox checked={choice.selected} name="choice-selected-radio" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />
-                                                        Add Choice<AddIcon  style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
-                                                        Remove Choice<CloseIcon style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
-                                                    </CardContent>
-                                                ))
-                                            }
-                                        </Card>
+                                                    field['choices'].map((choice, choiceIndex)=>(
+                                                        <CardContent key={`${field.type}-${index}-choice-${choiceIndex}`}>
+                                                        <div className="justify-start">
+                                                            <div className="flex-cols width60">
+                                                                <TextField variant="outlined" type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
+                                                                <div className="options flex-rows">
+                                                                    <FormControlLabel
+                                                                        label="Selected?" labelPlacement="start" className="no-margin-left"
+                                                                        control={<Checkbox checked={choice.selected} name="choice-selected-radio" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />}>
+
+                                                                    </FormControlLabel>
+                                                                </div>
+                                                            </div>
+                                                            <div className="field-control flex-rows margin-left-1">
+                                                               <AddCircleSharpIcon color="primary" fontSize="large"  style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
+                                                               <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
+                                                            </div>
+                                                        </div>
+                             
+                                                        </CardContent>
+                                                    ))
+                                                }
+                                        </div>   
                                     </div>
                                 }
                                 { field.type === "dropdown" &&
                                         <div>
                                             <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
-                                            <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
-                                            Required<Checkbox checkbox={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />
-                                            Remove <CloseIcon style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
-                                            <Card>
+                                            <div className="space-between">
+                                                <div className="flex-cols width80">
+                                                    <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
+                                                    <div className="options flex-rows">
+                                                        <FormControlLabel
+                                                            label="Required?" labelPlacement="start" className="no-margin-left"
+                                                            control={
+                                                                <Checkbox checkbox={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />
+                                                            }>
+                                                        </FormControlLabel>
+                                                    </div>
+                                                </div>
+                                                <div className="field-control flex-rows valign-start">
+                                                    <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
+                                                </div>
+                                            </div>
+                                            <div>
                                                 {field['choices'].length > 0 && 
-                                                    field['choices'].map((choice, choiceIndex)=>(
-                                                        <CardContent key={`${field.type}-${index}-choice-${choiceIndex}`}>
-                                                            <TextField variant="outlined" type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
-                                                            Selected?<Checkbox checked={choice.selected} name="choice-selected-dropdown" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />
-                                                            Add Choice<AddIcon  style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
-                                                            Remove Choice<CloseIcon style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
-                                                        </CardContent>
-                                                    ))
+                                                        field['choices'].map((choice, choiceIndex)=>(
+                                                            <CardContent key={`${field.type}-${index}-choice-${choiceIndex}`}>
+                                                                <div className="justify-start">
+                                                                    <div className="flex-cols width60">
+                                                                    <TextField variant="outlined" type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
+                                                                        <div className="options flex-rows">
+                                                                            <FormControlLabel
+                                                                                label="Selected?" labelPlacement="start" className="no-margin-left"
+                                                                                control={<Checkbox checked={choice.selected} name="choice-selected-dropdown" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />} >
+
+                                                                            </FormControlLabel>
+                                                                                
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="field-control flex-rows valign-start margin-left-1">
+                                                                        <AddCircleSharpIcon color="primary" fontSize="large"   style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
+                                                                        <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
+                                                                    </div>
+                                                                </div>  
+                                                            </CardContent>
+                                                        ))
                                                 }
-                                            </Card>
+                                            </div>
+                                                
+                                           
                                         </div>
                                     }
                                    
-                                </CardContent>
-                            </Card>
+                                
+                            </div>
                         ))}
                     </CardContent>
                     
                     
-                    <CardActions className="padding">
-                        <Button type="submit" size="small" color="primary" variant="contained">Save Form</Button>
-                    </CardActions>
+
+                    <Grid container justify="center">
+                        <CardActions>
+                            <Button type="submit" size="large" color="primary" variant="contained">Save Form</Button>
+                        </CardActions>     
+                    </Grid>
+                        
+                    
                     {this.state.formID &&
                         <CardContent>
                             <p>Shareable Form URL</p>
