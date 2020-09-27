@@ -10,6 +10,9 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import api from './api';
 
+/**
+ * Rendering accordions for each form submission
+ */
 class EntriesAccordion extends React.Component{
 
     constructor(props){
@@ -31,6 +34,7 @@ class EntriesAccordion extends React.Component{
                         return(Object.keys(entry).map(key=>{
                             return(
                                
+                                    /* Traverse nested JSON object and display submitted values for each form */
                                     <div className="margin-top-half">
                                         {/* <p>{key}</p> */}
                                         {key !== "choices" && key !== "label" && key !== "required" &&
@@ -60,7 +64,6 @@ class EntriesAccordion extends React.Component{
                                 
                         }));
                     })}
-                    {/* {formFields.map(entry=>entry)} */}
                 </AccordionDetails>
                 </Accordion>     
             )
@@ -75,20 +78,17 @@ class EntriesAccordion extends React.Component{
     }
 }
 
+/**
+ * Componennt that renders an Accordion for form submissions
+ */
 class Entries extends React.Component{
     constructor(props){
         super(props);
-        
         this.state={
             forms:this.props.form
         }
     }
     render(){
-        console.log('props received by Entries:');
-        console.log(this.props.form);
-        console.log('Data passed to EntriesAccordion:');
-        console.log(this.props.form);
-        
         return(
             <div className="padding">
                 <p className="underline-primary">Form Submissions</p>
@@ -99,6 +99,10 @@ class Entries extends React.Component{
     }
 }
 
+
+/**
+ * Parent component to accept form ID to view its submissions
+ */
 export default class FormSubmissions extends React.Component{
     constructor(props){
         super(props);
@@ -115,6 +119,8 @@ export default class FormSubmissions extends React.Component{
         this.handleFormIDChange = this.handleFormIDChange.bind(this);
 
     }
+
+    //If textfield is pre-filled with form ID (from redirect or direct URL), programmatically click button
     componentDidMount(){
         if(this.state.formID){
             document.getElementById('view-submissions-btn').click();
@@ -128,12 +134,16 @@ export default class FormSubmissions extends React.Component{
             });
         }
     }
+
+    //Setting form ID and enabling submit button
     handleFormIDChange(e){
         this.setState({
             formID:e.target.value,
             viewFormSubmissionsIsDisabled:false
         });
     }
+
+
     handleSubmissionsFormSubmit(e){
         e.preventDefault();
         this.setState({
@@ -150,11 +160,11 @@ export default class FormSubmissions extends React.Component{
             alert(error);
         })
     }
+
     render(){
-        console.log('Data passed to Entries:');
-        console.log(this.state.formData);
         return(
             <Card className="center">
+                <p className="underline-primary">Form Submissions</p>
                 <form onSubmit={this.handleSubmissionsFormSubmit}>
                     <CardContent>
                     <div className="flex-rows">

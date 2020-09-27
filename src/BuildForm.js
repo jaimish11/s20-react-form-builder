@@ -16,6 +16,10 @@ import { TextField } from '@material-ui/core';
 import stringUtility from './stringUtility';
 import api from './api';
 
+
+/**
+ * Actual form building component
+ */
 class ConfigForm extends React.Component{
     constructor(props){
         super();
@@ -45,7 +49,7 @@ class ConfigForm extends React.Component{
 
 
     }
-    //Initialises json object based on clicked form element
+    //Initialises json object based on type of form field selected
     handleFormElementClick(fieldType){ 
         this.setState({
             deleteFormIsDisabled:false
@@ -73,13 +77,15 @@ class ConfigForm extends React.Component{
         });
     }
 
+    //Handles form field selector 
     handleSelectChange(event){
         this.setState({
             addedField:event.target.value,
             addFieldIsDisabled:false
         })
     }
-    //Addition of more checkboxes inside a group
+
+    //Addition of options within a radio/checkbox/dropdown group
     handleAddChoice(index, choiceIndex){
         const values = [...this.state.formFields]
         values[index]['choices'].push({label:'', selected:false});
@@ -87,10 +93,10 @@ class ConfigForm extends React.Component{
             formFields: values,
         });
     }
-    //Deletion of checkboxes inside a group
+
+    //Deletion of options within a radio/checkbox/dropdown group
     handleRemoveChoice(index, choiceIndex){
         const values = [...this.state.formFields];
-        console.log(index, choiceIndex)
         values[index]['choices'].splice(choiceIndex, 1);
         this.setState({
             formFields: values,
@@ -98,7 +104,7 @@ class ConfigForm extends React.Component{
         });
     }
 
-    //Remove an entire field
+    //Remove an entire field (e.g text field, checkbox, radio, dropdown)
     handleRemoveField(index, event){
         const values = [...this.state.formFields];
         values.splice(index, 1);
@@ -108,7 +114,7 @@ class ConfigForm extends React.Component{
         
     }
 
-    //Handle change in a textfield
+    //Populate form JSON object based on type of element interacted with
     handleChange(index, choiceIndex = null, event) {
         this.setState({
             saveFormIsDisabled:false
@@ -117,20 +123,23 @@ class ConfigForm extends React.Component{
         //Normal label for all field types
         if(event.target.name === "label"){
             values[index].label = event.target.value;
+
         //Field required or not?
         }else if(event.target.name === "label-required"){
             values[index].required = event.target.checked;
         }
+
         //Label for checkbox/radio/dropdown choices
         else if(event.target.name === "choice"){
             values[index]['choices'][choiceIndex].label = event.target.value
         }
+
         //Choices for radio/checkbox/dropdown selected or not?
         else if(event.target.name.includes("choice-selected")){
             if(event.target.name === "choice-selected-checkbox"){
                 values[index]['choices'][choiceIndex].selected = event.target.checked;
             }
-            //Disallow multiple options from being selected for dropdown and radio
+            //Disallow multiple option selection for dropdown and radios
             else{
                 values[index]['choices'].forEach((choice,subIndex)=>{
     
@@ -149,13 +158,15 @@ class ConfigForm extends React.Component{
         this.setState({ formFields:values });
     }
 
+    //Handle form deletion
     handleClearFormClick(event){
         this.setState({
             formFields : [],
             deleteFormIsDisabled: true
         });
     }
-    //Handle form submit once form config is ready
+
+    //Handle form submit once config form is ready
     handleConfigFormSubmit(e){
         e.preventDefault();
         this.setState({
@@ -163,7 +174,6 @@ class ConfigForm extends React.Component{
         })
         api.saveData(this.state.formFields)
         .then(res=>{
-            console.log(res);
             this.setState({
                 formID: res
             });
@@ -403,7 +413,9 @@ class ConfigForm extends React.Component{
     }
 }
 
-
+/**
+ * Parent component for form building
+ */
 export default class BuildForm extends React.Component{
     constructor(props){
         super();
@@ -419,6 +431,7 @@ export default class BuildForm extends React.Component{
         return(
             <div>
                 <Card className="center">
+                
                     <ConfigForm />
                 </Card>
             </div>

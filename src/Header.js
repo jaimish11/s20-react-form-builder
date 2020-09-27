@@ -23,27 +23,7 @@ class Header extends React.Component{
             <div>
                 <AppBar position="static">
                     <Toolbar>
-                    {/* <div className="header">
-                        <Button
-                            variant="contained"
-                            onClick={() => this.handleButtonClick("/s20/build-form")}
-                        >
-                            BUILD FORM
-                        </Button>
-                        <Button
-                            variant="contained"
-                            onClick={() => this.handleButtonClick("/s20/view-form")}
-                        >
-                            VIEW FORM
-                        </Button>
-                        <Button
-                            variant="contained"
-                            onClick={() => this.handleButtonClick("/s20/view-submissions")}
-                        >
-                            VIEW SUBMISSIONS
-                        </Button>
-                    </div> */}
-                    <div className="header">
+                        <div className="header">
                             <Link href="#" color="inherit"
                                 variant="contained"
                                 onClick={() => this.handleButtonClick("/s20/build-form")}

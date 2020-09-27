@@ -1,11 +1,18 @@
 import axios from 'axios';
 let config = {};
+
+/**
+ * Saves user built form
+ * Saves user data (use submissions = true for this)
+ * @param {Array} payload 
+ * @param {Boolean} submissions 
+ */
 config.saveData =  async (payload, submissions = null) => {
     if(submissions){
         const formData = new Promise(function(resolve, reject){
             axios.post('http://localhost:5000/testAPI/forms/entries/save',payload)
             .then(res=>{
-                console.log(res);
+               
                 resolve(res);
             })
             .catch(error=>{
@@ -19,8 +26,6 @@ config.saveData =  async (payload, submissions = null) => {
         const formData = new Promise(function(resolve, reject){
             axios.post('http://localhost:5000/testAPI/save',payload)
             .then(res=>{
-                console.log(res);
-                console.log(res.data[0].formID);
                 resolve(res.data[0].formID);
                 
             })
@@ -35,12 +40,17 @@ config.saveData =  async (payload, submissions = null) => {
    
 }
 
+/**
+ * Fetch user built form
+ * Fetch user submitted form data (use submissions = true for this)
+ * @param {String} form 
+ * @param {Boolean} submissions 
+ */
 config.getForm = async (form, submissions= null) => {
     if(!submissions){
         const formData = new Promise(function(resolve, reject){
             axios.get('http://localhost:5000/testAPI/forms/'+form)
             .then(res=>{
-                // console.log(res.data);
                 resolve(res.data);
             })
             .catch(error=>{
@@ -54,7 +64,6 @@ config.getForm = async (form, submissions= null) => {
         const submissionsData = new Promise(function(resolve, reject){
             axios.get('http://localhost:5000/testAPI/forms/entries/'+form)
             .then(res=>{
-                console.log(res.data);
                 resolve(res.data);
             })
             .catch(error=>{

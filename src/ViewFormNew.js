@@ -24,7 +24,7 @@ import {
 
 
 /**
-* Submit data with form that user created
+* Component to submit form with entered data
 */
 class SubmittedForm extends React.Component{
 
@@ -47,6 +47,8 @@ class SubmittedForm extends React.Component{
         this.handleChange = this.handleChange.bind(this);
     
     }
+
+    //Helper function to find selected value for dropdown
     findSelected(index){
         const values = [...this.state.formFieldData];
         let preselectedOption = '';
@@ -59,12 +61,14 @@ class SubmittedForm extends React.Component{
        })
        return preselectedOption;
     }
+
+
     componentDidMount(){
         
         //Form JSON to render on frontend
         let formToRender = [...this.props.form];
         let noOfFormFields = this.props.form[0].fields.length;
-        //Form JSON to store entered form values
+        //Form JSON to store entered form data
         let formFieldData = [...this.state.formFieldData]
         for(let i=0;i<noOfFormFields;i++){
             let label = formToRender[0]['fields'][i]['label'];
@@ -132,6 +136,8 @@ class SubmittedForm extends React.Component{
             console.log(error);
         })  
     }
+
+    //Populate form JSON based on type of field interacted with
     handleChange(index, choiceIndex=null, type, event){
         const values = [...this.state.formFieldData];
         this.setState({
@@ -147,11 +153,6 @@ class SubmittedForm extends React.Component{
             case "radio":
                 values[0]['entries'][index]['choices'].forEach((choice, subIndex)=>{
                     
-                   
-                    // if(choiceIndex !== 0 && subIndex === 0){
-                    //     console.log(Object.keys(choice)[0]);
-                    //     values[0]['entries'][index]['choices'][0][Object.keys(choice)[0]] = false;
-                    // }
                     //Only allow one option to be selected
                     if(choiceIndex === subIndex){
                         values[0]['entries'][index]['choices'][choiceIndex][event.target.value] = event.target.checked;
@@ -186,6 +187,7 @@ class SubmittedForm extends React.Component{
     }
     render(){
         let fields = [];
+        //Populate fields array based on dynamic JSON object - object rendered in render() method
         if(this.state.form.length > 0){
             this.state.form[0].fields.map((field, index)=>{
                 if(field.type === "text"){
@@ -240,6 +242,8 @@ class SubmittedForm extends React.Component{
                 }
             })
         }
+
+        //Once form is submitted successfully, automatically redirect to submissions page
         if(this.state.formID){
             let redirectURL = `/s20/view-submissions/${this.state.formID}`;
             history.push(redirectURL);
@@ -266,6 +270,9 @@ class SubmittedForm extends React.Component{
 }
 
 
+/**
+ * Parent component to view a created form
+ */
 export default class ViewFormNew extends React.Component{
     constructor(props){
         super(props);
@@ -288,6 +295,7 @@ export default class ViewFormNew extends React.Component{
 
     }
    
+    //If input field is pre-filled with form ID, click View Form button programmatically
     componentDidMount(){
         if(this.state.formID){
             document.getElementById('view-form-btn').click();
@@ -301,12 +309,14 @@ export default class ViewFormNew extends React.Component{
             });
         }
     }
+
     handleTextFieldChange(e){
         this.setState({
             formID:e.target.value,
             viewFormIsDisabled: false
         })
     }
+
     handleViewFormSubmit(e){
         e.preventDefault();
         api.getForm(this.state.formID)
@@ -323,11 +333,14 @@ export default class ViewFormNew extends React.Component{
 
     handleOnClick(e){
         e.preventDefault();
+        this.setState({
+            viewFormIsDisabled:true
+        });
         api.getForm(this.state.formID)
         .then(form=>{
             this.setState({
                 
-                formData:'',
+                formData:''
             });
             this.setState({
 
