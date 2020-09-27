@@ -19,8 +19,8 @@ export default class App extends React.Component{
             <div className="padding-1">
                 <Header/>
                 <Switch>
+                        <Redirect exact from="/" to="/s20" />
                         <Redirect exact from="/s20" to="/s20/build-form" />
-                        {/* <Route exact path="/s20/:page" render={props => <Home {...props} />} /> */}
                         <Route exact path="/s20/build-form" render={props=><BuildForm {...props} />}/>
                         <Route path="/s20/view-form/:form?" render={props=><ViewFormNew {...props} />}/>
                         <Route path="/s20/view-submissions/:form?" render={props=><FormSubmissions {...props} />}/>

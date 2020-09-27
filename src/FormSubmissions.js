@@ -1,6 +1,5 @@
 import React from 'react';
 import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import { TextField } from '@material-ui/core';
@@ -15,42 +14,40 @@ class EntriesAccordion extends React.Component{
 
     constructor(props){
         super(props);
-        this.state = {
-            forms:this.props.forms
-        }
+       
     }
     render(){
         let accordionGroup = [];
-        this.state.forms.forEach((form, index)=>(
+        this.props.forms.forEach((form, index)=>(
             accordionGroup.push(
                 <Accordion key={index}>
-                <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                >
-                <Typography>{`Form#${index} - ${form.timestamp.replace('T',' --- ')}`}</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
+                    <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    >
+                    <Typography>{`Form#${index} - ${form.timestamp.replace('T',' --- ').replace('Z','')}`}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
                     {form.form[0]['entries'].map(entry=>{
-                        {/* console.log(entry) */}
-                        {/* formEntries.push(<p>{entry.toString()}</p>); */}
                         return(Object.keys(entry).map(key=>{
                             return(
                                
                                     <div className="margin-top-half">
-                                        {key !== "choices" && key !== "label" &&
+                                        {/* <p>{key}</p> */}
+                                        {key !== "choices" && key !== "label" && key !== "required" &&
                                             `${key}:${entry[key]}`
                                         }
                                         {
-                                            key === "label" &&
+                                            key === "label"  &&
                                             <span className="underline">{`${entry[key]}`}</span>
                                         }
+    
                                         {key === "choices" &&
                                             entry[key].map(choice=>{
                                                 return(
                                                    Object.keys(choice).map(option=>{
                                                        return(
                                                            <div key={option} className="left-indent20">
-                                                            {choice[option] == true && `${option}`}
+                                                            {choice[option] === true && `${option}`}
                                                            </div>  
                                                         );
                                                    }) 
@@ -71,8 +68,8 @@ class EntriesAccordion extends React.Component{
         ));
 
        return(
-           <div>
-           {accordionGroup.map(accordion=>accordion)}
+           <div key={accordionGroup}>
+            {accordionGroup.map(accordion=>accordion)}
            </div>
         );
     }
@@ -81,15 +78,21 @@ class EntriesAccordion extends React.Component{
 class Entries extends React.Component{
     constructor(props){
         super(props);
+        
         this.state={
             forms:this.props.form
         }
     }
     render(){
+        console.log('props received by Entries:');
+        console.log(this.props.form);
+        console.log('Data passed to EntriesAccordion:');
+        console.log(this.props.form);
+        
         return(
             <div className="padding">
-                <p>Form Entries</p>
-                <EntriesAccordion forms={this.state.forms}/> 
+                <p className="underline-primary">Form Submissions</p>
+                <EntriesAccordion forms={this.props.form}/> 
             </div>
            
         );
@@ -105,7 +108,8 @@ export default class FormSubmissions extends React.Component{
         this.state = {
             formID:form,
             formData:'',
-            redirect:''
+            redirect:'',
+            viewFormSubmissionsIsDisabled: false
         }
         this.handleSubmissionsFormSubmit = this.handleSubmissionsFormSubmit.bind(this);
         this.handleFormIDChange = this.handleFormIDChange.bind(this);
@@ -114,13 +118,27 @@ export default class FormSubmissions extends React.Component{
     componentDidMount(){
         if(this.state.formID){
             document.getElementById('view-submissions-btn').click();
+            this.setState({
+                viewFormSubmissionsIsDisabled:true
+            });
+        }
+        else{
+            this.setState({
+                viewFormSubmissionsIsDisabled:true
+            });
         }
     }
     handleFormIDChange(e){
-        this.setState({formID:e.target.value});
+        this.setState({
+            formID:e.target.value,
+            viewFormSubmissionsIsDisabled:false
+        });
     }
     handleSubmissionsFormSubmit(e){
         e.preventDefault();
+        this.setState({
+            viewFormSubmissionsIsDisabled:true
+        });
         api.getForm(this.state.formID, true)
         .then(form=>{
             this.setState({
@@ -133,13 +151,15 @@ export default class FormSubmissions extends React.Component{
         })
     }
     render(){
+        console.log('Data passed to Entries:');
+        console.log(this.state.formData);
         return(
             <Card className="center">
                 <form onSubmit={this.handleSubmissionsFormSubmit}>
                     <CardContent>
                     <div className="flex-rows">
                         <TextField className="flex-1" id="outlined-basic" label="Enter form ID" variant="outlined" value={this.state.formID} onChange={this.handleFormIDChange}/>
-                        <Button className="flex-1 margin-left-1" id="view-submissions-btn" type="submit" size="large" color="primary" variant="contained">View Form Submissions</Button>
+                        <Button className="flex-1 margin-left-1" disabled={this.state.viewFormSubmissionsIsDisabled} id="view-submissions-btn" type="submit" size="large" color="primary" variant="contained">View Form Submissions</Button>
                         <div className="flex-1"></div>
                     </div>
                         

@@ -40,7 +40,7 @@ config.getForm = async (form, submissions= null) => {
         const formData = new Promise(function(resolve, reject){
             axios.get('http://localhost:5000/testAPI/forms/'+form)
             .then(res=>{
-                console.log(res.data);
+                // console.log(res.data);
                 resolve(res.data);
             })
             .catch(error=>{

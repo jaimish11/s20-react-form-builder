@@ -5,10 +5,13 @@ import Grid from '@material-ui/core/Grid';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
 import CancelSharpIcon from '@material-ui/icons/CancelSharp';
 import AddCircleSharpIcon from '@material-ui/icons/AddCircleSharp';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Collapse from '@material-ui/core/Collapse';
 import { TextField } from '@material-ui/core';
 import stringUtility from './stringUtility';
 import api from './api';
@@ -21,23 +24,34 @@ class ConfigForm extends React.Component{
                 
             ],
             formID:'',
-            fieldIsVisible:false,
-            checkboxChoiceCount:0
+            addedField:'',
+            saveFormIsDisabled: true,
+            addFieldIsDisabled:true,
+            deleteFormIsDisabled: true
+            
         };
         this.handleFormElementClick = this.handleFormElementClick.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleSelectChange = this.handleSelectChange.bind(this);
         this.handleConfigFormSubmit = this.handleConfigFormSubmit.bind(this);
         this.handleRemoveField = this.handleRemoveField.bind(this);
 
         this.handleAddChoice = this.handleAddChoice.bind(this);
         this.handleRemoveChoice = this.handleRemoveChoice.bind(this);
 
+        this.handleClearFormClick = this.handleClearFormClick.bind(this);
+
+
+
 
     }
     //Initialises json object based on clicked form element
     handleFormElementClick(fieldType){ 
+        this.setState({
+            deleteFormIsDisabled:false
+        });
         const values = [...this.state.formFields]
-        switch(fieldType){
+        switch(fieldType.toLowerCase()){
             case "text":
                 values.push({label:'', required:false, type:fieldType});
             break;
@@ -55,10 +69,16 @@ class ConfigForm extends React.Component{
         
         this.setState({
             formFields: values,
-            fieldIsVisible: true
+           
         });
     }
 
+    handleSelectChange(event){
+        this.setState({
+            addedField:event.target.value,
+            addFieldIsDisabled:false
+        })
+    }
     //Addition of more checkboxes inside a group
     handleAddChoice(index, choiceIndex){
         const values = [...this.state.formFields]
@@ -85,10 +105,14 @@ class ConfigForm extends React.Component{
         this.setState({
             formFields: values,
         });
+        
     }
 
     //Handle change in a textfield
     handleChange(index, choiceIndex = null, event) {
+        this.setState({
+            saveFormIsDisabled:false
+        });
         const values = [...this.state.formFields];
         //Normal label for all field types
         if(event.target.name === "label"){
@@ -109,7 +133,9 @@ class ConfigForm extends React.Component{
             //Disallow multiple options from being selected for dropdown and radio
             else{
                 values[index]['choices'].forEach((choice,subIndex)=>{
-                    if(choiceIndex != subIndex){
+    
+                    if(choiceIndex !== subIndex){
+                       
                         values[index]['choices'][subIndex].selected = !event.target.checked
                     }
                     else{
@@ -123,9 +149,18 @@ class ConfigForm extends React.Component{
         this.setState({ formFields:values });
     }
 
+    handleClearFormClick(event){
+        this.setState({
+            formFields : [],
+            deleteFormIsDisabled: true
+        });
+    }
     //Handle form submit once form config is ready
     handleConfigFormSubmit(e){
         e.preventDefault();
+        this.setState({
+            saveFormIsDisabled:true
+        })
         api.saveData(this.state.formFields)
         .then(res=>{
             console.log(res);
@@ -143,23 +178,33 @@ class ConfigForm extends React.Component{
     }
 
     render(){
-        // if(this.state.formID){
-        //     let redirectURL = `/s20/view-form/${this.state.formID}`;
-        //     history.push(redirectURL);
-        //     return <Redirect to={{ pathname:redirectURL, state:this.state.formID}} />
-        // }
         return(
             <div>
+                <CardContent>
+                <p className="underline-primary">Build Form</p>
+                    <div className="flex-cols">
+                        <div className="flex-rows margin-top-1">
+
+                                <FormControl className="flex-1">
+                                    <InputLabel>Add Field</InputLabel>
+                                    <Select onChange={this.handleSelectChange} value={this.state.addedField}>
+                                    <MenuItem value="text">Single Line Text</MenuItem>
+                                    <MenuItem value="checkbox">Checkbox</MenuItem>
+                                    <MenuItem value="radio">Radio</MenuItem>
+                                    <MenuItem value="dropdown">Dropdown</MenuItem>
+                                    </Select>
+                                </FormControl>
+                                <Button className="flex-1 margin-left-1" disabled={this.state.addFieldIsDisabled} type="submit" size="small" color="primary" variant="contained" onClick={event=>this.handleFormElementClick(this.state.addedField)}>Add Field</Button>
+                                <div className="flex-2"></div>
+                        </div>
+                                    
+                    </div>
+                </CardContent>
+              
                 <form onSubmit={this.handleConfigFormSubmit}>
+
                     <CardContent>
-                        
-                                <div className="flex-cols">
-                                    Add Field:
-                                    <a href="#" id="singleLineText" onClick={event=>this.handleFormElementClick("text")}>Single Line Text</a>
-                                    <a href="#" id="checkboxField" onClick={event=>this.handleFormElementClick("checkbox")}>Checkbox</a>
-                                    <a href="#" id="radioField" onClick={event=>this.handleFormElementClick("radio")}>Radio</a>
-                                    <a href="#" id="dropdownField" onClick={event=>this.handleFormElementClick("dropdown")}>Dropdown</a>
-                                </div>
+                               
                        
                         {this.state.formFields.map((field, index)=>(
                             
@@ -193,7 +238,7 @@ class ConfigForm extends React.Component{
                                 { field.type === "checkbox" &&
                                     <div>
                                         <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
-                                        <div className="space-between">
+                                        <div className="space-between margin-bottom-1">
                                             <div className="flex-cols width80">
                                                 <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
                                             </div>
@@ -206,7 +251,7 @@ class ConfigForm extends React.Component{
                                             {field['choices'].length > 0 && 
                                                     field['choices'].map((choice, choiceIndex)=>(
                                                         
-                                                            <CardContent key={`${field.type}-${index}-choice-${choiceIndex}`}>
+                                                            <div className="left-indent20" key={`${field.type}-${index}-choice-${choiceIndex}`}>
                                                                 <div className="justify-start">
                                                                     <div className="flex-cols width60">
 
@@ -226,7 +271,7 @@ class ConfigForm extends React.Component{
                                                                     </div>
                                                                 
                                                                 </div>   
-                                                            </CardContent>
+                                                            </div>
                                                       
                                                         
                                                     ))
@@ -238,13 +283,13 @@ class ConfigForm extends React.Component{
                                 { field.type === "radio" &&
                                     <div>
                                         <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
-                                        <div className="space-between">
+                                        <div className="space-between margin-bottom-1">
                                             <div className="flex-cols width80">
                                                 <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
                                                 <div className="options flex-rows" >
                                                     <FormControlLabel
                                                         label="Required?" labelPlacement="start" className="no-margin-left"
-                                                        control={<Checkbox checkbox={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />}>
+                                                        control={<Checkbox checked={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />}>
                                                     </FormControlLabel> 
                                                 </div>
                                             </div>
@@ -256,7 +301,7 @@ class ConfigForm extends React.Component{
                                         <div>
                                             {field['choices'].length > 0 && 
                                                     field['choices'].map((choice, choiceIndex)=>(
-                                                        <CardContent key={`${field.type}-${index}-choice-${choiceIndex}`}>
+                                                        <div className="left-indent20" key={`${field.type}-${index}-choice-${choiceIndex}`}>
                                                         <div className="justify-start">
                                                             <div className="flex-cols width60">
                                                                 <TextField variant="outlined" type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
@@ -274,7 +319,7 @@ class ConfigForm extends React.Component{
                                                             </div>
                                                         </div>
                              
-                                                        </CardContent>
+                                                        </div>
                                                     ))
                                                 }
                                         </div>   
@@ -283,7 +328,7 @@ class ConfigForm extends React.Component{
                                 { field.type === "dropdown" &&
                                         <div>
                                             <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
-                                            <div className="space-between">
+                                            <div className="space-between margin-bottom-1">
                                                 <div className="flex-cols width80">
                                                     <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
                                                     <div className="options flex-rows">
@@ -302,7 +347,7 @@ class ConfigForm extends React.Component{
                                             <div>
                                                 {field['choices'].length > 0 && 
                                                         field['choices'].map((choice, choiceIndex)=>(
-                                                            <CardContent key={`${field.type}-${index}-choice-${choiceIndex}`}>
+                                                            <div className="left-indent20" key={`${field.type}-${index}-choice-${choiceIndex}`}>
                                                                 <div className="justify-start">
                                                                     <div className="flex-cols width60">
                                                                     <TextField variant="outlined" type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
@@ -320,7 +365,7 @@ class ConfigForm extends React.Component{
                                                                         <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
                                                                     </div>
                                                                 </div>  
-                                                            </CardContent>
+                                                            </div>
                                                         ))
                                                 }
                                             </div>
@@ -338,7 +383,8 @@ class ConfigForm extends React.Component{
 
                     <Grid container justify="center">
                         <CardActions>
-                            <Button type="submit" size="large" color="primary" variant="contained">Save Form</Button>
+                            <Button disabled={this.state.saveFormIsDisabled} type="submit" size="large" color="primary" variant="contained">Save Form</Button>
+                            <Button disabled={this.state.deleteFormIsDisabled} type="button" size="large" color="secondary" variant="contained" onClick={this.handleClearFormClick}>Delete Form</Button>
                         </CardActions>     
                     </Grid>
                         

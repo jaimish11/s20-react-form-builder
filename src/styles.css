@@ -53,6 +53,9 @@ body{
 .flex-1{
     flex:1 1 0px;
 }
+.flex-2{
+    flex:2 1 0px;
+}
 .space-between{
     display: flex;
     flex-direction: row;
@@ -61,14 +64,13 @@ body{
 .justify-start{
     display: flex;
     flex-direction: row;
-    justify-content: start;
     justify-content: flex-start;
 }
 .valign-center{
     align-items:center;
 }
 .valign-start{
-    align-items:start;
+    align-items:flex-start;
 }
 .no-margin-left{
     margin-left:0px !important;
@@ -81,6 +83,9 @@ body{
 }
 .margin-top-2{
     margin-top: 2em !important;
+}
+.margin-bottom-1{
+    margin-bottom:1em;
 }
 .margin-top-half{
     margin-top: 0.5em !important;
@@ -97,8 +102,18 @@ body{
 .underline{
     border-bottom: 2px solid black;
 }
+.underline-primary{
+    text-align: center;
+    font-size: 24px;
+    border-bottom: 4px solid #303f9f;
+    max-width: max-content;
+    margin: 0 auto;
+}
 .active{
     border-bottom: 2px solid white;
+}
+#circular-progress{
+    display: none;
 }
 
 

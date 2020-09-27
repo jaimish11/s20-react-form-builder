@@ -13,6 +13,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import api from './api';
 import { TextField } from '@material-ui/core';
 import history from './history';
@@ -20,6 +21,7 @@ import {
     BrowserRouter as Router,
     Redirect
 } from "react-router-dom";
+
 
 /**
 * Submit data with form that user created
@@ -35,8 +37,9 @@ class SubmittedForm extends React.Component{
                 ]
             }],
             form:'',
-            formIsSubmitted: false,
-            formID:''
+            formID:'',
+            submitFormIsDisabled:true
+
 
         }
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
@@ -88,7 +91,7 @@ class SubmittedForm extends React.Component{
                 case "dropdown":
                     formFieldData[0]['entries'].push({
                         label:label,
-                        // required: formToRender[0]['fields'][i]['required'],
+                        required: formToRender[0]['fields'][i]['required'],
                         choices:[]
                     });
                     formToRender[0]['fields'][i]['choices'].forEach(choice=>{
@@ -111,8 +114,8 @@ class SubmittedForm extends React.Component{
     handleFormSubmit(e){
         e.preventDefault();
         this.setState({
-            formIsSubmitted: true
-        })
+            submitFormIsDisabled:!this.state.submitFormIsDisabled
+        });
         api.saveData(
         {
             formID:this.state.form[0].formID, 
@@ -131,6 +134,9 @@ class SubmittedForm extends React.Component{
     }
     handleChange(index, choiceIndex=null, type, event){
         const values = [...this.state.formFieldData];
+        this.setState({
+            submitFormIsDisabled:false
+        });
         switch(type){
             case "text":
                 values[0]['entries'][index][event.target.name] = event.target.value;
@@ -141,8 +147,13 @@ class SubmittedForm extends React.Component{
             case "radio":
                 values[0]['entries'][index]['choices'].forEach((choice, subIndex)=>{
                     
+                   
+                    // if(choiceIndex !== 0 && subIndex === 0){
+                    //     console.log(Object.keys(choice)[0]);
+                    //     values[0]['entries'][index]['choices'][0][Object.keys(choice)[0]] = false;
+                    // }
                     //Only allow one option to be selected
-                    if(choiceIndex == subIndex){
+                    if(choiceIndex === subIndex){
                         values[0]['entries'][index]['choices'][choiceIndex][event.target.value] = event.target.checked;
                     }
                     else{
@@ -157,7 +168,7 @@ class SubmittedForm extends React.Component{
             case "dropdown":
                 values[0]['entries'][index]['choices'].forEach(choice=>{
                     Object.keys(choice).forEach(key=>{
-                        if(key == event.target.value){
+                        if(key === event.target.value){
                             choice[event.target.value] = true;
                         }
                         else{
@@ -198,13 +209,21 @@ class SubmittedForm extends React.Component{
                     <FormControl component="fieldset" required={field.required}>
                         <FormLabel component="legend">{field.label}</FormLabel>
                         <RadioGroup name={field.label} value={field.label} >
+                        
                             {field.choices.map((choice,choiceIndex)=>(
+                                
+                                
                                 <FormControlLabel key={choice + choiceIndex}  label={choice.label} value={choice.label} name={choice.label} labelPlacement="end" 
-                                control={<Radio onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} checked={this.state.formFieldData[0]['entries'][index]['choices'][choiceIndex][choice.label]}/>} />
-                            ))}  
+                                control={<Radio name={field.label} required={field.required} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} checked={this.state.formFieldData[0]['entries'][index]['choices'][choiceIndex][choice.label]}/>
+                               
+                                } />
+                                
+                            ))
+                            }  
                         </RadioGroup>     
                     </FormControl>
                     <br/></div>)
+                    
                 }
                 else if(field.type === "dropdown"){
                     fields.push(<div className="margin-top-2" key={index}>
@@ -212,7 +231,6 @@ class SubmittedForm extends React.Component{
                             <InputLabel>{field.label}</InputLabel>
                             <Select onChange={event=>this.handleChange(index, null, field.type, event)}
                                 value={this.findSelected(index)}>
-                                {console.log('select value--'+this.findSelected(index))}
                                 {field.choices.map((choice,choiceIndex)=>(
                                     <MenuItem key={choice + choiceIndex} value={choice.label}>{choice.label}</MenuItem>
                                 ))}
@@ -229,13 +247,13 @@ class SubmittedForm extends React.Component{
         }
         return(
             <div>
-                <p>Your Form</p>
+                <p className="underline-primary">Your Form</p>
                 <form onSubmit={this.handleFormSubmit}>
                     <CardContent>
                         {fields}
                     </CardContent>
                     <CardActions className="padding">
-                        <Button type="submit" size="large" color="primary" variant="contained">Submit Form</Button>  
+                        <Button type="submit" disabled={this.state.submitFormIsDisabled} size="large" color="primary" variant="contained">Submit Form</Button>  
                     </CardActions>
                 </form>
             </div>
@@ -259,7 +277,9 @@ export default class ViewFormNew extends React.Component{
             formData:'',
             redirect:'',
             formsStore:[],
-            newFormRequested:false
+            newFormRequested:false,
+            viewFormIsDisabled: false,
+            
         }
         this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
         this.handleViewFormSubmit = this.handleViewFormSubmit.bind(this);
@@ -271,11 +291,20 @@ export default class ViewFormNew extends React.Component{
     componentDidMount(){
         if(this.state.formID){
             document.getElementById('view-form-btn').click();
+            this.setState({
+                viewFormIsDisabled:true
+            });
+        }
+        else{
+            this.setState({
+                viewFormIsDisabled:true
+            });
         }
     }
     handleTextFieldChange(e){
         this.setState({
-            formID:e.target.value
+            formID:e.target.value,
+            viewFormIsDisabled: false
         })
     }
     handleViewFormSubmit(e){
@@ -296,8 +325,12 @@ export default class ViewFormNew extends React.Component{
         e.preventDefault();
         api.getForm(this.state.formID)
         .then(form=>{
-            
             this.setState({
+                
+                formData:'',
+            });
+            this.setState({
+
                 formData:form[0]
 
             })
@@ -308,29 +341,16 @@ export default class ViewFormNew extends React.Component{
         })
     }
     render(){
-        // console.log('inside ViewFormNew render()');
-        // let noOfFormsViewed = this.state.formsStore.length;
-        // if((noOfFormsViewed >= 2 ) && JSON.stringify(this.state.formsStore[noOfFormsViewed-1]) !== JSON.stringify(this.state.formsStore[noOfFormsViewed-2])){
-        //     console.log('new form requested');
-        //     console.log(this.state.formData);
-        //     this.setState({
-        //         newFormRequested:true
-        //     })
-        // }
-        let form = [];
-        if(this.state.formData){
-            form.push(this.state.formData);
-        }
-
        
         return(
             <Card className="center">
+                <p className="underline-primary">View Form</p>
                 <form /*onSubmit={this.handleViewFormSubmit}*/>
                     <CardContent>
-                        <div class="flex-rows">
+                        <div className="flex-rows">
                             <TextField className="flex-1" id="outlined-basic" label="Enter form ID" variant="outlined" value={this.state.formID} onChange={this.handleTextFieldChange}/> 
                             
-                            <Button className="flex-1 margin-left-1" id="view-form-btn" type="submit" size="large" color="primary" variant="contained" onClick={this.handleOnClick}>View Form</Button>
+                            <Button className="flex-1 margin-left-1" disabled={this.state.viewFormIsDisabled} id="view-form-btn" type="submit" size="large" color="primary" variant="contained" onClick={this.handleOnClick}>View Form</Button>
                             <div className="flex-1"></div>
                         </div>
    
@@ -338,8 +358,7 @@ export default class ViewFormNew extends React.Component{
                    
                 </form>
                 <CardContent>
-                    {/* {(this.state.newFormRequested || this.state.formsStore.length > 0) && <SubmittedForm form={[this.state.formData]}/>} */}
-                    {form.length > 0 && <SubmittedForm form={form}/>}
+                    {this.state.formData && <SubmittedForm form={[this.state.formData]}/>}
                 </CardContent>
             </Card>
             
