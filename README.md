@@ -1,4 +1,28 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Simple form builder app
+
+## Instructions to run:
+1. Once you clone the repo, navigate to the s20-form-builder directory:
+### `cd s20-form-builder`
+
+2. Install the required modules:
+### `npm install`
+
+3. Run the dev server:
+### `npm start`
+
+
+## Todos + Future feature list
+1. Proper display of errors and warning messages on frontend using proper Material UI components e.g network failure, or if the API request didn't go through for whatever reason. Currently, all errors are just logged to the console. 
+2. Proper validation on build form page along with more fields such as file uploads, textareas etc. 
+3. Hosting
+4. Responsiveness for mobile and other UI tweaks such as highlighting the active navigation links and loading icons on the buttons. 
+5. Live preview while form is being built
+6. Switching order of options in the form builder.
+7. Draggable options in form builder. 
+8. Dark mode toggle (the holy grail)
+
+
+
 
 ## Available Scripts
 
