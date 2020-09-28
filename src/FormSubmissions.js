@@ -17,10 +17,6 @@ import api from './api';
  */
 class EntriesAccordion extends React.Component{
 
-    constructor(props){
-        super(props);
-       
-    }
     render(){
         let accordionGroup = [];
         this.props.forms.forEach((form, index)=>(
@@ -182,7 +178,7 @@ export default class FormSubmissions extends React.Component{
                     </CardContent>
                 </form>
                 {this.state.formData && <Entries form={this.state.formData}/>}
-                
+
                 <Snackbar open={this.state.returnedServerError} autoHideDuration={3000} onClose={() => this.setState({returnedServerError: false})}>
                     <Alert severity="error" variant="filled" onClose={() => this.setState({returnedServerError: false})}>SERVER ERROR</Alert>
                 </Snackbar>

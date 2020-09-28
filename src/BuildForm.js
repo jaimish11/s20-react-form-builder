@@ -12,6 +12,8 @@ import FormControl from '@material-ui/core/FormControl';
 import CancelSharpIcon from '@material-ui/icons/CancelSharp';
 import AddCircleSharpIcon from '@material-ui/icons/AddCircleSharp';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import ArrowDropDownSharpIcon from '@material-ui/icons/ArrowDropDownSharp';
+import ArrowDropUpSharpIcon from '@material-ui/icons/ArrowDropUpSharp';
 import Alert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 import { TextField } from '@material-ui/core';
@@ -34,7 +36,8 @@ class ConfigForm extends React.Component{
             saveFormIsDisabled: true,
             addFieldIsDisabled:true,
             deleteFormIsDisabled: true,
-            returnedServerError: false
+            returnedServerError: false,
+            isFirstElement: true
             
         };
         this.handleFormElementClick = this.handleFormElementClick.bind(this);
@@ -47,6 +50,9 @@ class ConfigForm extends React.Component{
         this.handleRemoveChoice = this.handleRemoveChoice.bind(this);
 
         this.handleClearFormClick = this.handleClearFormClick.bind(this);
+
+        this.handleMoveDown = this.handleMoveDown.bind(this);
+        this.handleMoveUp = this.handleMoveUp.bind(this);
 
 
 
@@ -170,6 +176,33 @@ class ConfigForm extends React.Component{
         });
     }
 
+    handleMoveDown(index, event){
+        //Only allow move down if element is not first or last
+        if(this.state.formFields.length > 1 && index >= 0 && index<=this.state.formFields.length-2){
+            const values = [...this.state.formFields];
+            [values[index], values[index+1]] = [values[index+1], values[index]]
+            this.setState({
+                formFields: values
+            })
+        }
+        else{}
+       
+    }
+
+    handleMoveUp(index, event){
+    
+        //Only allow move up if element is not first or last
+        if(this.state.formFields.length > 1 && index > 0){
+            const values = [...this.state.formFields];
+            [values[index], values[index-1]] = [values[index-1], values[index]]
+            this.setState({
+                formFields: values
+            })
+        }
+        else{}
+       
+    }
+
     //Handle form submit once config form is ready
     handleConfigFormSubmit(e){
         e.preventDefault();
@@ -196,6 +229,14 @@ class ConfigForm extends React.Component{
     }
 
     render(){
+        const arrowDisabledStyles = {
+            color: "rgba(0, 0, 0, 0.12)",
+            pointerEvents: "none"
+        }
+        const arrowEnabledStyles = {
+            pointerEvents: "auto",
+            cursor: "pointer"
+        }
         return(
             <div>
                 <CardContent>
@@ -206,11 +247,11 @@ class ConfigForm extends React.Component{
                                 <FormControl className="flex-1">
                                     <InputLabel>Add Field</InputLabel>
                                     <Select onChange={this.handleSelectChange} value={this.state.addedField}>
-                                    <MenuItem value="text">Single Line Text</MenuItem>
-                                    <MenuItem value="textarea">Multi Line Text</MenuItem>
-                                    <MenuItem value="checkbox">Checkbox</MenuItem>
-                                    <MenuItem value="radio">Radio</MenuItem>
-                                    <MenuItem value="dropdown">Dropdown</MenuItem>
+                                        <MenuItem value="text">Single Line Text</MenuItem>
+                                        <MenuItem value="textarea">Multi Line Text</MenuItem>
+                                        <MenuItem value="checkbox">Checkbox</MenuItem>
+                                        <MenuItem value="radio">Radio</MenuItem>
+                                        <MenuItem value="dropdown">Dropdown</MenuItem>
                                     </Select>
                                 </FormControl>
                                 <Button className="flex-1 margin-left-1" disabled={this.state.addFieldIsDisabled} type="submit" size="small" color="primary" variant="contained" onClick={event=>this.handleFormElementClick(this.state.addedField)}>Add Field</Button>
@@ -244,8 +285,10 @@ class ConfigForm extends React.Component{
                                                             
                                                     </div>
                                                 </div>
-                                                <div className="field-control flex-rows valign-start">
-                                                <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
+                                                <div className="field-control flex-rows valign-start">  
+                                                    <ArrowDropUpSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                    <ArrowDropDownSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                    <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
                                                 </div>
                                             </div>
                                             
@@ -270,7 +313,9 @@ class ConfigForm extends React.Component{
                                                     </div>
                                                 </div>
                                                 <div className="field-control flex-rows valign-start">
-                                                <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
+                                                    <ArrowDropUpSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                    <ArrowDropDownSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                    <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
                                                 </div>
                                             </div>
                                             
@@ -287,6 +332,8 @@ class ConfigForm extends React.Component{
                                                 <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
                                             </div>
                                             <div className="field-control flex-rows valign-start">
+                                                <ArrowDropUpSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                <ArrowDropDownSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
                                                 <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
                                             </div>
                                             
@@ -338,6 +385,8 @@ class ConfigForm extends React.Component{
                                                 </div>
                                             </div>
                                             <div className="field-control flex-rows valign-start">
+                                                <ArrowDropUpSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                <ArrowDropDownSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
                                                 <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
                                             </div>
 
@@ -385,6 +434,8 @@ class ConfigForm extends React.Component{
                                                     </div>
                                                 </div>
                                                 <div className="field-control flex-rows valign-start">
+                                                    <ArrowDropUpSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                    <ArrowDropDownSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
                                                     <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
                                                 </div>
                                             </div>
