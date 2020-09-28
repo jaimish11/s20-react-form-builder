@@ -35,7 +35,7 @@ class EntriesAccordion extends React.Component{
                                     /* Traverse nested JSON object and display submitted values for each form */
                                     <div className="margin-top-half">
                                         {/* <p>{key}</p> */}
-                                        {key !== "choices" && key !== "label" && key !== "required" &&
+                                        {key !== "choices" && key !== "label" && key !== "required" && key !== "type" &&
                                             `${key}:${entry[key]}`
                                         }
                                         {
