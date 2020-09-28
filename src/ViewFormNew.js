@@ -16,6 +16,8 @@ import Select from '@material-ui/core/Select';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import api from './api';
 import { TextField } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 import history from './history';
 import {
     BrowserRouter as Router,
@@ -38,7 +40,8 @@ class SubmittedForm extends React.Component{
             }],
             form:'',
             formID:'',
-            submitFormIsDisabled:true
+            submitFormIsDisabled:true,
+            returnedServerError: false
 
 
         }
@@ -76,6 +79,7 @@ class SubmittedForm extends React.Component{
             //Populate submission form JSON based on form to render
             switch(type){
                 case "text":
+                case "textarea":
                     formFieldData[0]['entries'].push({
                         [label]: ''
                     });
@@ -117,9 +121,6 @@ class SubmittedForm extends React.Component{
     
     handleFormSubmit(e){
         e.preventDefault();
-        this.setState({
-            submitFormIsDisabled:!this.state.submitFormIsDisabled
-        });
         api.saveData(
         {
             formID:this.state.form[0].formID, 
@@ -134,6 +135,9 @@ class SubmittedForm extends React.Component{
         })
         .catch(error=>{
             console.log(error);
+            this.setState({
+                returnedServerError: true
+            });
         })  
     }
 
@@ -145,6 +149,7 @@ class SubmittedForm extends React.Component{
         });
         switch(type){
             case "text":
+                case "textarea":
                 values[0]['entries'][index][event.target.name] = event.target.value;
             break;
             case "checkbox":
@@ -192,6 +197,9 @@ class SubmittedForm extends React.Component{
             this.state.form[0].fields.map((field, index)=>{
                 if(field.type === "text"){
                     fields.push(<div key={index} className="width80 margin-top-1"><TextField fullWidth id="outlined-basic" value={this.state.formFieldData[0]['entries'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
+                }
+                if(field.type === "textarea"){
+                    fields.push(<div key={index} className="width80 margin-top-1"><TextField fullWidth multiline helperText="You can enter multiple lines here" id="outlined-basic" value={this.state.formFieldData[0]['entries'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
                 }
                 else if(field.type === "checkbox"){
                     fields.push(<div className="margin-top-2" key={index}>
@@ -260,6 +268,9 @@ class SubmittedForm extends React.Component{
                         <Button type="submit" disabled={this.state.submitFormIsDisabled} size="large" color="primary" variant="contained">Submit Form</Button>  
                     </CardActions>
                 </form>
+                <Snackbar open={this.state.returnedServerError} autoHideDuration={3000} onClose={() => this.setState({returnedServerError: false})}>
+                    <Alert severity="error" variant="filled" onClose={() => this.setState({returnedServerError: false})}>SERVER ERROR</Alert>
+                </Snackbar>
             </div>
                 
 
@@ -286,6 +297,7 @@ export default class ViewFormNew extends React.Component{
             formsStore:[],
             newFormRequested:false,
             viewFormIsDisabled: false,
+            returnedServerError: false
             
         }
         this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
@@ -350,7 +362,10 @@ export default class ViewFormNew extends React.Component{
 
         })
         .catch(error=>{
-            alert(error);
+            this.setState({
+                returnedServerError: true,
+                viewFormIsDisabled:false
+            });
         })
     }
     render(){
@@ -373,6 +388,10 @@ export default class ViewFormNew extends React.Component{
                 <CardContent>
                     {this.state.formData && <SubmittedForm form={[this.state.formData]}/>}
                 </CardContent>
+
+                <Snackbar open={this.state.returnedServerError} autoHideDuration={3000} onClose={() => this.setState({returnedServerError: false})}>
+                    <Alert severity="error" variant="filled" onClose={() => this.setState({returnedServerError: false})}>SERVER ERROR</Alert>
+                </Snackbar>
             </Card>
             
            

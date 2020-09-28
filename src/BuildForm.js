@@ -12,6 +12,8 @@ import FormControl from '@material-ui/core/FormControl';
 import CancelSharpIcon from '@material-ui/icons/CancelSharp';
 import AddCircleSharpIcon from '@material-ui/icons/AddCircleSharp';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 import { TextField } from '@material-ui/core';
 import stringUtility from './stringUtility';
 import api from './api';
@@ -31,7 +33,8 @@ class ConfigForm extends React.Component{
             addedField:'',
             saveFormIsDisabled: true,
             addFieldIsDisabled:true,
-            deleteFormIsDisabled: true
+            deleteFormIsDisabled: true,
+            returnedServerError: false
             
         };
         this.handleFormElementClick = this.handleFormElementClick.bind(this);
@@ -57,11 +60,12 @@ class ConfigForm extends React.Component{
         const values = [...this.state.formFields]
         switch(fieldType.toLowerCase()){
             case "text":
+            case "textarea":
                 values.push({label:'', required:false, type:fieldType});
-            break;
+                break;
             case "checkbox":
                 values.push({label:'', type:fieldType, choices:[{label:'', selected:false}]});
-            break;
+                break;
             case "radio":
                 values.push({label:'', required:false, type:fieldType, choices:[{label:'', selected:false}]});
                 break;
@@ -181,7 +185,11 @@ class ConfigForm extends React.Component{
         })  
         .catch(error=>{
             console.log(error);
-            alert(error);
+
+            this.setState({
+                saveFormIsDisabled:false,
+                returnedServerError: true
+            });
         })
 
      
@@ -199,6 +207,7 @@ class ConfigForm extends React.Component{
                                     <InputLabel>Add Field</InputLabel>
                                     <Select onChange={this.handleSelectChange} value={this.state.addedField}>
                                     <MenuItem value="text">Single Line Text</MenuItem>
+                                    <MenuItem value="textarea">Multi Line Text</MenuItem>
                                     <MenuItem value="checkbox">Checkbox</MenuItem>
                                     <MenuItem value="radio">Radio</MenuItem>
                                     <MenuItem value="dropdown">Dropdown</MenuItem>
@@ -227,6 +236,31 @@ class ConfigForm extends React.Component{
                                             <div className="space-between">
                                                 <div className="flex-cols width80">
                                                     <TextField fullWidth  variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
+                                                    <div className="options flex-rows" >
+                                                        <FormControlLabel
+                                                            label="Required?" labelPlacement="start" className="no-margin-left"
+                                                            control={<Checkbox checked={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />}>
+                                                        </FormControlLabel>
+                                                            
+                                                    </div>
+                                                </div>
+                                                <div className="field-control flex-rows valign-start">
+                                                <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
+                                                </div>
+                                            </div>
+                                            
+                                        
+                                        </div> 
+                                   
+                                }
+
+                                { field.type === "textarea" &&
+                                    
+                                        <div>
+                                            <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
+                                            <div className="space-between">
+                                                <div className="flex-cols width80">
+                                                    <TextField fullWidth variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
                                                     <div className="options flex-rows" >
                                                         <FormControlLabel
                                                             label="Required?" labelPlacement="start" className="no-margin-left"
@@ -405,6 +439,10 @@ class ConfigForm extends React.Component{
                             <p><a href={(window.location.href+"/"+this.state.formID).replace('build-form','view-form').replace("#",'')}>{(window.location.href+"/"+this.state.formID).replace('build-form','view-form').replace("#",'')}</a></p>
                         </CardContent>
                     }
+
+                    <Snackbar open={this.state.returnedServerError} autoHideDuration={3000} onClose={() => this.setState({returnedServerError: false})}>
+                        <Alert severity="error" variant="filled" onClose={() => this.setState({returnedServerError: false})}>SERVER ERROR</Alert>
+                    </Snackbar>
                     
                 </form>
                 

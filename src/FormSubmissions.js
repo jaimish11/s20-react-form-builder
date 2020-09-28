@@ -8,6 +8,8 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Alert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 import api from './api';
 
 /**
@@ -91,7 +93,7 @@ class Entries extends React.Component{
     render(){
         return(
             <div className="padding">
-                <p className="underline-primary">Form Submissions</p>
+                <p className="underline-primary">Your Submissions</p>
                 <EntriesAccordion forms={this.props.form}/> 
             </div>
            
@@ -113,7 +115,8 @@ export default class FormSubmissions extends React.Component{
             formID:form,
             formData:'',
             redirect:'',
-            viewFormSubmissionsIsDisabled: false
+            viewFormSubmissionsIsDisabled: false,
+            returnedServerError: false
         }
         this.handleSubmissionsFormSubmit = this.handleSubmissionsFormSubmit.bind(this);
         this.handleFormIDChange = this.handleFormIDChange.bind(this);
@@ -157,7 +160,10 @@ export default class FormSubmissions extends React.Component{
 
         })
         .catch(error=>{
-            alert(error);
+            this.setState({
+                viewFormSubmissionsIsDisabled:false,
+                returnedServerError:true
+            })
         })
     }
 
@@ -176,6 +182,10 @@ export default class FormSubmissions extends React.Component{
                     </CardContent>
                 </form>
                 {this.state.formData && <Entries form={this.state.formData}/>}
+                
+                <Snackbar open={this.state.returnedServerError} autoHideDuration={3000} onClose={() => this.setState({returnedServerError: false})}>
+                    <Alert severity="error" variant="filled" onClose={() => this.setState({returnedServerError: false})}>SERVER ERROR</Alert>
+                </Snackbar>
             </Card>
            
         );
