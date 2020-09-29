@@ -22,6 +22,9 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import RadioGroup from '@material-ui/core/RadioGroup';
+import Fade from '@material-ui/core/Fade';
+import Collapse from '@material-ui/core/Collapse';
+import Grow from '@material-ui/core/Grow';
 import history from './history';
 import {
     BrowserRouter as Router,
@@ -209,10 +212,10 @@ class SubmittedForm extends React.Component{
         if(this.props.form.length > 0){
             this.props.form[0].fields.map((field, index)=>{
                 if(field.type === "text"){
-                    fields.push(<div key={index} className="width80 margin-top-1"><TextField fullWidth id="outlined-basic" value={this.props.form[0]['fields'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
+                    fields.push(<div key={index} className="width80 margin-top-1"><TextField disabled fullWidth id="outlined-basic" value={this.props.form[0]['fields'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
                 }
                 else if(field.type === "textarea"){
-                    fields.push(<div key={index} className="width80 margin-top-1"><TextField fullWidth multiline helperText="You can enter multiple lines here" id="outlined-basic" value={this.props.form[0]['fields'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
+                    fields.push(<div key={index} className="width80 margin-top-1"><TextField disabled fullWidth multiline helperText="You can enter multiple lines here" id="outlined-basic" value={this.props.form[0]['fields'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
                 }
                 else if(field.type === "checkbox"){
                     fields.push(<div className="margin-top-2" key={index}>
@@ -221,7 +224,7 @@ class SubmittedForm extends React.Component{
                         <FormGroup>
                             {field.choices.map((choice,choiceIndex)=>(
                                 <FormControlLabel key={choice+choiceIndex} label={choice.label} labelPlacement="end" 
-                                control={<Checkbox color="primary" type={field.type} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} value={choice.label} checked={this.props.form[0]['fields'][index]['choices'][choiceIndex]['selected']}/>} />
+                                control={<Checkbox color="primary" disabled type={field.type} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} value={choice.label} checked={this.props.form[0]['fields'][index]['choices'][choiceIndex]['selected']}/>} />
                             ))}  
                         </FormGroup>     
                     </FormControl>
@@ -237,7 +240,7 @@ class SubmittedForm extends React.Component{
                                 
                                 
                                 <FormControlLabel key={choice + choiceIndex}  label={choice.label} value={choice.label} name={choice.label} labelPlacement="end" 
-                                control={<Radio name={field.label} required={field.required} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} checked={this.props.form[0]['fields'][index]['choices'][choiceIndex]['selected']}/>
+                                control={<Radio name={field.label} disabled required={field.required} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} checked={this.props.form[0]['fields'][index]['choices'][choiceIndex]['selected']}/>
                                
                                 } />
                                 
@@ -255,7 +258,7 @@ class SubmittedForm extends React.Component{
                             <Select onChange={event=>this.handleChange(index, null, field.type, event)}
                                 value={this.findSelected(index)}>
                                 {field.choices.map((choice,choiceIndex)=>(
-                                    <MenuItem key={choice + choiceIndex} value={choice.label}>{choice.label}</MenuItem>
+                                    <MenuItem disabled key={choice + choiceIndex} value={choice.label}>{choice.label}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
@@ -272,7 +275,6 @@ class SubmittedForm extends React.Component{
         }
         return(
             <div>
-                <p className="underline-primary">Your Form</p>
                 <form onSubmit={this.handleFormSubmit}>
                     <CardContent>
                         {fields}
@@ -329,11 +331,21 @@ class ConfigForm extends React.Component{
         this.handleMoveDown = this.handleMoveDown.bind(this);
         this.handleMoveUp = this.handleMoveUp.bind(this);
 
-        
+        this.getVisibility = this.getVisibility.bind(this);
 
+        this.fieldVisibility = {
 
+        }
 
+   
 
+    }
+
+    getVisibility(type, index){
+        if(this.fieldVisibility[type+"-"+index] == undefined){
+            this.fieldVisibility[type+"-"+index] = true;
+        }
+        return this.fieldVisibility[type+"-"+index];
     }
     //Initialises json object based on type of form field selected
     handleFormElementClick(fieldType){ 
@@ -343,6 +355,11 @@ class ConfigForm extends React.Component{
         const values = [...this.state.formFields]
         switch(fieldType.toLowerCase()){
             case "text":
+                this.setState({
+                    isTextFieldVisible:true
+                })
+                values.push({label:'', required:false, type:fieldType});
+                break;
             case "textarea":
                 values.push({label:'', required:false, type:fieldType});
                 break;
@@ -399,8 +416,9 @@ class ConfigForm extends React.Component{
     }
 
     //Remove an entire field (e.g text field, checkbox, radio, dropdown)
-    handleRemoveField(index, event){
+    handleRemoveField(type, index, event){
 
+        delete this.fieldVisibility[type+"-"+index];
         //Update form builder
         const values = [...this.state.formFields];
         values.splice(index, 1);
@@ -490,8 +508,14 @@ class ConfigForm extends React.Component{
 
             const values = [...this.state.formFields];
             [values[index], values[index+1]] = [values[index+1], values[index]]
+
+            //Update preview
+            const previewFormValues = [...this.state.previewFormFields];
+            previewFormValues[0]['fields'] = [...values];
+
             this.setState({
-                formFields: values
+                formFields: values,
+                previewFormFields: previewFormValues
             })
         }
         else{}
@@ -505,8 +529,14 @@ class ConfigForm extends React.Component{
 
             const values = [...this.state.formFields];
             [values[index], values[index-1]] = [values[index-1], values[index]]
+
+            //Update preview
+            const previewFormValues = [...this.state.previewFormFields];
+            previewFormValues[0]['fields'] = [...values];
+            
             this.setState({
-                formFields: values
+                formFields: values,
+                previewFormFields: previewFormValues
             })
         }
         else{}
@@ -547,10 +577,10 @@ class ConfigForm extends React.Component{
             pointerEvents: "auto",
             cursor: "pointer"
         }
-        const removeChoiceEnabledStyles = {
+        const iconEnabledStyles = {
             cursor:"pointer"
         }
-        const removeChoiceDisabledStyles = {
+        const iconDisabledStyles = {
             pointerEvents:"none",
             color: "rgba(0, 0, 0, 0.12)",
         }
@@ -590,40 +620,42 @@ class ConfigForm extends React.Component{
                                
                     
                                     { field.type === "text" &&
-                                    
-                                            <div>
-                                                <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
-                                                <div className="space-between">
-                                                    <div className="flex-cols width80">
-                                                        <TextField fullWidth  variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
-                                                        <div className="options flex-rows" >
-                                                            <FormControlLabel
-                                                                label="Required?" labelPlacement="start" className="no-margin-left"
-                                                                control={<Checkbox checked={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />}>
-                                                            </FormControlLabel>
-                                                            
+                                        <Grow in={this.getVisibility(field.type, index)}>
+                                                <div>
+                                                    <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
+                                                    <div className="space-between">
+                                                        <div className="flex-cols width80">
+                                                            <TextField fullWidth required variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
+                                                            <div className="options flex-rows" >
+                                                                <FormControlLabel
+                                                                    label="Required?" labelPlacement="start" className="no-margin-left"
+                                                                    control={<Checkbox checked={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />}>
+                                                                </FormControlLabel>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                        <div className="field-control flex-rows valign-start">  
+                                                            <ArrowDropUpSharpIcon fontSize="large" onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                            <ArrowDropDownSharpIcon fontSize="large" onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                            <CancelSharpIcon color="action" fontSize="large" onClick={event=>this.handleRemoveField(field.type, index,event)} style={iconEnabledStyles}/>
                                                         </div>
                                                     </div>
-                                                    <div className="field-control flex-rows valign-start">  
-                                                        <ArrowDropUpSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
-                                                        <ArrowDropDownSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
-                                                        <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
-                                                    </div>
-                                                </div>
+                                                
                                             
-                                        
-                                            </div> 
+                                                </div> 
+                                        </Grow>
+                                       
                                     
                                    
                                     }
 
                                     { field.type === "textarea" &&
-                                    
+                                        <Grow in={this.getVisibility(field.type, index)}>
                                             <div>
                                                 <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
                                                 <div className="space-between">
                                                     <div className="flex-cols width80">
-                                                        <TextField fullWidth variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
+                                                        <TextField fullWidth required variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
                                                         <div className="options flex-rows" >
                                                             <FormControlLabel
                                                                 label="Required?" labelPlacement="start" className="no-margin-left"
@@ -633,162 +665,169 @@ class ConfigForm extends React.Component{
                                                         </div>
                                                     </div>
                                                     <div className="field-control flex-rows valign-start">
-                                                        <ArrowDropUpSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
-                                                        <ArrowDropDownSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
-                                                        <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
+                                                        <ArrowDropUpSharpIcon fontSize="large" onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                        <ArrowDropDownSharpIcon fontSize="large" onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                        <CancelSharpIcon color="action" fontSize="large" onClick={event=>this.handleRemoveField(field.type, index, event)} style={iconEnabledStyles}/>
                                                     </div>
                                                 </div>
                                             
                                         
                                             </div> 
+                                        </Grow>
                                    
                                     }
 
                                     { field.type === "checkbox" &&
-                                        <div>
-                                            <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
-                                            <div className="space-between margin-bottom-1">
-                                                <div className="flex-cols width80">
-                                                    <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
-                                                </div>
-                                                <div className="field-control flex-rows valign-start">
-                                                    <ArrowDropUpSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
-                                                    <ArrowDropDownSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
-                                                    <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
-                                                </div>
-                                            
-                                            </div>
-                                            <div>
-                                                {field['choices'].length > 0 && 
-                                                        field['choices'].map((choice, choiceIndex)=>(
-                                                        
-                                                                <div className="left-indent20" key={`${field.type}-${index}-choice-${choiceIndex}`}>
-                                                                    <div className="justify-start">
-                                                                        <div className="flex-cols width60">
-
-                                                                        <TextField variant="outlined" type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
-                                                                        <div className="options flex-rows" >
-                                                                            <FormControlLabel
-                                                                                label="Selected?" labelPlacement="start" className="no-margin-left"
-                                                                                control={<Checkbox checked={choice.selected} name="choice-selected-checkbox" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />}>
-                                                                    
-                                                                            </FormControlLabel>
-
-                                                                        </div>
-                                                                    </div>
-                                                                        <div className="field-control flex-rows margin-left-1" >
-                                                                                <AddCircleSharpIcon color="primary" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
-                                                                                <CancelSharpIcon color="action" fontSize="large" style={(choiceIndex===0)?removeChoiceDisabledStyles:removeChoiceEnabledStyles} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
-                                                                        </div>
-                                                                
-                                                                    </div>   
-                                                                </div>
-                                                      
-                                                        
-                                                        ))
-                                                }
-                                            </div>      
-                                       
-                                        </div>
-                                    }
-                               
-                                    { field.type === "radio" &&
-                                        <div>
-                                            <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
-                                            <div className="space-between margin-bottom-1">
-                                                <div className="flex-cols width80">
-                                                    <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
-                                                    <div className="options flex-rows" >
-                                                        <FormControlLabel
-                                                            label="Required?" labelPlacement="start" className="no-margin-left"
-                                                            control={<Checkbox checked={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />}>
-                                                        </FormControlLabel> 
-                                                    </div>
-                                                </div>
-                                                <div className="field-control flex-rows valign-start">
-                                                    <ArrowDropUpSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
-                                                    <ArrowDropDownSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
-                                                    <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
-                                                </div>
-
-                                            </div>
-                                            <div>
-                                                {field['choices'].length > 0 && 
-                                                        field['choices'].map((choice, choiceIndex)=>(
-                                                            <div className="left-indent20" key={`${field.type}-${index}-choice-${choiceIndex}`}>
-                                                            <div className="justify-start">
-                                                                <div className="flex-cols width60">
-                                                                    <TextField variant="outlined" type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
-                                                                    <div className="options flex-rows">
-                                                                        <FormControlLabel
-                                                                            label="Selected?" labelPlacement="start" className="no-margin-left"
-                                                                            control={<Checkbox checked={choice.selected} name="choice-selected-radio" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />}>
-
-                                                                        </FormControlLabel>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="field-control flex-rows margin-left-1">
-                                                                <AddCircleSharpIcon color="primary" fontSize="large"  style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
-                                                                <CancelSharpIcon color="action" fontSize="large" style={(choiceIndex===0)?removeChoiceDisabledStyles:removeChoiceEnabledStyles} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
-                                                                </div>
-                                                            </div>
-                             
-                                                            </div>
-                                                        ))
-                                                    }
-                                            </div>   
-                                        </div>
-                                    }
-                                    { field.type === "dropdown" &&
+                                        <Grow in={this.getVisibility(field.type, index)}>
                                             <div>
                                                 <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
                                                 <div className="space-between margin-bottom-1">
                                                     <div className="flex-cols width80">
-                                                        <TextField variant="outlined" type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
-                                                        <div className="options flex-rows">
+                                                        <TextField variant="outlined" required type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
+                                                    </div>
+                                                    <div className="field-control flex-rows valign-start">
+                                                        <ArrowDropUpSharpIcon fontSize="large" onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                        <ArrowDropDownSharpIcon fontSize="large" onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                        <CancelSharpIcon color="action" fontSize="large" onClick={event=>this.handleRemoveField(field.type, index,event)} style={iconEnabledStyles}/>
+                                                    </div>
+                                                
+                                                </div>
+                                                <div>
+                                                    {field['choices'].length > 0 && 
+                                                            field['choices'].map((choice, choiceIndex)=>(
+                                                            
+                                                                    <div className="left-indent20" key={`${field.type}-${index}-choice-${choiceIndex}`}>
+                                                                        <div className="justify-start">
+                                                                            <div className="flex-cols width60">
+
+                                                                            <TextField variant="outlined" required type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
+                                                                            <div className="options flex-rows" >
+                                                                                <FormControlLabel
+                                                                                    label="Selected?" labelPlacement="start" className="no-margin-left" required
+                                                                                    control={<Checkbox checked={choice.selected} name="choice-selected-checkbox" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />}>
+                                                                        
+                                                                                </FormControlLabel>
+
+                                                                            </div>
+                                                                        </div>
+                                                                            <div className="field-control flex-rows margin-left-1" >
+                                                                                    <AddCircleSharpIcon color="primary" fontSize="large" onClick={event=>this.handleAddChoice(index, choiceIndex, event)} style={iconEnabledStyles}/>
+                                                                                    <CancelSharpIcon color="action" fontSize="large" style={(choiceIndex===0)?iconDisabledStyles:iconEnabledStyles} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
+                                                                            </div>
+                                                                    
+                                                                        </div>   
+                                                                    </div>
+                                                        
+                                                            
+                                                            ))
+                                                    }
+                                                </div>      
+                                        
+                                            </div>
+                                        </Grow>
+                                    }
+                               
+                                    { field.type === "radio" &&
+                                        <Grow in={this.getVisibility(field.type, index)}>
+                                            <div>
+                                                <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
+                                                <div className="space-between margin-bottom-1">
+                                                    <div className="flex-cols width80">
+                                                        <TextField variant="outlined" required type="text" name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
+                                                        <div className="options flex-rows" >
                                                             <FormControlLabel
                                                                 label="Required?" labelPlacement="start" className="no-margin-left"
-                                                                control={
-                                                                    <Checkbox checkbox={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />
-                                                                }>
-                                                            </FormControlLabel>
+                                                                control={<Checkbox checked={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />}>
+                                                            </FormControlLabel> 
                                                         </div>
                                                     </div>
                                                     <div className="field-control flex-rows valign-start">
-                                                        <ArrowDropUpSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
-                                                        <ArrowDropDownSharpIcon fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
-                                                        <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveField(index,event)}/>
+                                                        <ArrowDropUpSharpIcon fontSize="large" onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                        <ArrowDropDownSharpIcon fontSize="large" onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                        <CancelSharpIcon color="action" fontSize="large" onClick={event=>this.handleRemoveField(field.type, index,event)} style={iconEnabledStyles}/>
                                                     </div>
+
                                                 </div>
                                                 <div>
                                                     {field['choices'].length > 0 && 
                                                             field['choices'].map((choice, choiceIndex)=>(
                                                                 <div className="left-indent20" key={`${field.type}-${index}-choice-${choiceIndex}`}>
-                                                                    <div className="justify-start">
-                                                                        <div className="flex-cols width60">
-                                                                        <TextField variant="outlined" type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
-                                                                            <div className="options flex-rows">
-                                                                                <FormControlLabel
-                                                                                    label="Selected?" labelPlacement="start" className="no-margin-left"
-                                                                                    control={<Checkbox checked={choice.selected} name="choice-selected-dropdown" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />} >
+                                                                <div className="justify-start">
+                                                                    <div className="flex-cols width60">
+                                                                        <TextField variant="outlined" required type="text" name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
+                                                                        <div className="options flex-rows">
+                                                                            <FormControlLabel
+                                                                                label="Selected?" labelPlacement="start" className="no-margin-left" required
+                                                                                control={<Checkbox checked={choice.selected} name="choice-selected-radio" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />}>
 
-                                                                                </FormControlLabel>
-                                                                                
-                                                                            </div>
+                                                                            </FormControlLabel>
                                                                         </div>
-                                                                        <div className="field-control flex-rows valign-start margin-left-1">
-                                                                            <AddCircleSharpIcon color="primary" fontSize="large"   style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
-                                                                            <CancelSharpIcon color="action" fontSize="large" style={(choiceIndex===0)?removeChoiceDisabledStyles:removeChoiceEnabledStyles} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
-                                                                        </div>
-                                                                    </div>  
+                                                                    </div>
+                                                                    <div className="field-control flex-rows margin-left-1">
+                                                                    <AddCircleSharpIcon color="primary" fontSize="large"  onClick={event=>this.handleAddChoice(index, choiceIndex, event)} style={iconEnabledStyles}/>
+                                                                    <CancelSharpIcon color="action" fontSize="large" style={(choiceIndex===0)?iconDisabledStyles:iconEnabledStyles} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
+                                                                    </div>
+                                                                </div>
+                                
                                                                 </div>
                                                             ))
-                                                    }
-                                                </div>
-                                                
-                                           
+                                                        }
+                                                </div>   
                                             </div>
-                                        }
+                                        </Grow>
+                                    }
+                                    { field.type === "dropdown" &&
+                                        <Grow in={this.getVisibility(field.type, index)}>
+                                                <div>
+                                                    <p className="emphasized">{stringUtility.capitalize(field.type)}</p>
+                                                    <div className="space-between margin-bottom-1">
+                                                        <div className="flex-cols width80">
+                                                            <TextField variant="outlined" type="text" required name="label" value={field.label} label="Enter Label" onChange={event=>this.handleChange(index, null, event)}/>
+                                                            <div className="options flex-rows">
+                                                                <FormControlLabel
+                                                                    label="Required?" labelPlacement="start" className="no-margin-left"
+                                                                    control={
+                                                                        <Checkbox checkbox={field.required} name="label-required" onChange={event=>this.handleChange(index, null, event)} color="primary" />
+                                                                    }>
+                                                                </FormControlLabel>
+                                                            </div>
+                                                        </div>
+                                                        <div className="field-control flex-rows valign-start">
+                                                            <ArrowDropUpSharpIcon fontSize="large"  onClick={event=>this.handleMoveUp(index,event)} style={index === 0 && (this.state.isFirstElement || this.state.isLastElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                            <ArrowDropDownSharpIcon fontSize="large"  onClick={event=>this.handleMoveDown(index,event)}  style={index === this.state.formFields.length - 1 && (this.state.isLastElement || this.state.isFirstElement)?arrowDisabledStyles:arrowEnabledStyles} />
+                                                            <CancelSharpIcon color="action" fontSize="large"  onClick={event=>this.handleRemoveField(field.type, index,event)} style={iconEnabledStyles}/>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        {field['choices'].length > 0 && 
+                                                                field['choices'].map((choice, choiceIndex)=>(
+                                                                    <div className="left-indent20" key={`${field.type}-${index}-choice-${choiceIndex}`}>
+                                                                        <div className="justify-start">
+                                                                            <div className="flex-cols width60">
+                                                                            <TextField variant="outlined" type="text" required name="choice" value={choice.label} label="Enter Choice" onChange={event=>this.handleChange(index, choiceIndex, event)}/>
+                                                                                <div className="options flex-rows">
+                                                                                    <FormControlLabel
+                                                                                        label="Selected?" labelPlacement="start" className="no-margin-left" required
+                                                                                        control={<Checkbox checked={choice.selected} name="choice-selected-dropdown" onChange={event=>this.handleChange(index, choiceIndex, event)} color="primary" />} >
+
+                                                                                    </FormControlLabel>
+                                                                                    
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="field-control flex-rows valign-start margin-left-1">
+                                                                                <AddCircleSharpIcon color="primary" fontSize="large"  style={iconEnabledStyles} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
+                                                                                <CancelSharpIcon color="action" fontSize="large" style={(choiceIndex===0)?iconDisabledStyles:iconEnabledStyles} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
+                                                                            </div>
+                                                                        </div>  
+                                                                    </div>
+                                                                ))
+                                                        }
+                                                    </div>
+                                                    
+                                            
+                                                </div>
+                                        </Grow>
+                                    }
                                    
                                 
                                 </div>
@@ -820,8 +859,12 @@ class ConfigForm extends React.Component{
                 
                 </div>
                 <Card className="flex-1">
-                    <p className="underline-primary">Live Preview</p>
-                    {this.state.previewFormFields[0]['fields'].length>0 && <SubmittedForm form={this.state.previewFormFields}/>}
+                    <CardContent>
+
+                        <p className="underline-primary">Live Preview</p>
+                        {this.state.previewFormFields[0]['fields'].length>0 && <SubmittedForm form={this.state.previewFormFields}/>}
+                    </CardContent>
+                    
                 </Card>
             </div>
            
