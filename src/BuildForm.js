@@ -166,7 +166,7 @@ class SubmittedForm extends React.Component{
                 form[0]['entries'][index][event.target.name] = event.target.value;
             break;
             case "checkbox":
-                form[0]['entries'][index]['choices'][choiceIndex][event.target.value] = event.target.checked;
+                form[0]['entries'][index]['choices'][choiceIndex]['selected'] = event.target.checked;
             break;
             // case "radio":
             //     form[0]['entries'][index]['choices'].forEach((choice, subIndex)=>{
@@ -201,6 +201,7 @@ class SubmittedForm extends React.Component{
 
         }
        
+        console.log(form);
         this.setState({ formFieldData:form });
     }
     render(){
@@ -410,6 +411,13 @@ class ConfigForm extends React.Component{
         previewFormValues[0]['fields'] = [...values];
 
 
+        //Disable delete form if last element remains
+        if(event.target && index === 0){
+            this.setState({
+                deleteFormIsDisabled:true
+            });
+        }
+
         this.setState({
             formFields: values,
             previewFormFields: previewFormValues
@@ -470,6 +478,9 @@ class ConfigForm extends React.Component{
     handleClearFormClick(event){
         this.setState({
             formFields : [],
+            previewFormFields: [{
+                fields:[{}]
+            }],
             deleteFormIsDisabled: true
         });
     }
@@ -536,6 +547,13 @@ class ConfigForm extends React.Component{
         const arrowEnabledStyles = {
             pointerEvents: "auto",
             cursor: "pointer"
+        }
+        const removeChoiceEnabledStyles = {
+            cursor:"pointer"
+        }
+        const removeChoiceDisabledStyles = {
+            pointerEvents:"none",
+            color: "rgba(0, 0, 0, 0.12)",
         }
         return(
             <div className="flex-rows">
@@ -661,7 +679,7 @@ class ConfigForm extends React.Component{
                                                                     </div>
                                                                         <div className="field-control flex-rows margin-left-1" >
                                                                                 <AddCircleSharpIcon color="primary" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
-                                                                                <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
+                                                                                <CancelSharpIcon color="action" fontSize="large" style={(choiceIndex===0)?removeChoiceDisabledStyles:removeChoiceEnabledStyles} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
                                                                         </div>
                                                                 
                                                                     </div>   
@@ -712,7 +730,7 @@ class ConfigForm extends React.Component{
                                                                 </div>
                                                                 <div className="field-control flex-rows margin-left-1">
                                                                 <AddCircleSharpIcon color="primary" fontSize="large"  style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
-                                                                <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
+                                                                <CancelSharpIcon color="action" fontSize="large" style={(choiceIndex===0)?removeChoiceDisabledStyles:removeChoiceEnabledStyles} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
                                                                 </div>
                                                             </div>
                              
@@ -761,7 +779,7 @@ class ConfigForm extends React.Component{
                                                                         </div>
                                                                         <div className="field-control flex-rows valign-start margin-left-1">
                                                                             <AddCircleSharpIcon color="primary" fontSize="large"   style={{ cursor: "pointer" }} onClick={event=>this.handleAddChoice(index, choiceIndex, event)}/>
-                                                                            <CancelSharpIcon color="action" fontSize="large" style={{ cursor: "pointer" }} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
+                                                                            <CancelSharpIcon color="action" fontSize="large" style={(choiceIndex===0)?removeChoiceDisabledStyles:removeChoiceEnabledStyles} onClick={event=>this.handleRemoveChoice(index, choiceIndex, event)}/>
                                                                         </div>
                                                                     </div>  
                                                                 </div>
