@@ -60,15 +60,15 @@ class SubmittedForm extends React.Component{
 
     //Helper function to find selected value for dropdown
     findSelected(index){
-        const values = [...this.state.formFieldData];
+        const values = [...this.props.form];
         let preselectedOption = '';
-        values[0]['entries'][index]['choices'].forEach(choice=>{
+        values[0]['fields'][index]['choices'].forEach(choice=>{
         Object.keys(choice).forEach(key=>{
             if(choice[key] === true) {
-                preselectedOption = key;
+                preselectedOption = choice['label'];
             }
-        })
-    })
+        });
+    });
     return preselectedOption;
     }
 
@@ -168,40 +168,39 @@ class SubmittedForm extends React.Component{
             case "checkbox":
                 form[0]['entries'][index]['choices'][choiceIndex]['selected'] = event.target.checked;
             break;
-            // case "radio":
-            //     form[0]['entries'][index]['choices'].forEach((choice, subIndex)=>{
+            case "radio":
+                form[0]['entries'][index]['choices'].forEach((choice, subIndex)=>{
                     
-            //         //Only allow one option to be selected
-            //         if(choiceIndex === subIndex){
-            //             form[0]['entries'][index]['choices'][choiceIndex][event.target.value] = event.target.checked;
-            //         }
-            //         else{
-            //             Object.keys(form[0]['entries'][index]['choices'][subIndex]).forEach(key=>{
-            //                 form[0]['entries'][index]['choices'][subIndex][key] = !event.target.checked;
-            //             })
+                    //Only allow one option to be selected
+                    if(choiceIndex === subIndex){
+                        form[0]['entries'][index]['choices'][choiceIndex]['selected'] = event.target.checked;
+                    }
+                    else{
+                        Object.keys(form[0]['entries'][index]['choices'][subIndex]).forEach(key=>{
+                            form[0]['entries'][index]['choices'][subIndex]['selected'] = !event.target.checked;
+                        })
                         
-            //         }
-            //     })   
+                    }
+                })   
             
-            // break;
-            // case "dropdown":
-            //     form[0]['entries'][index]['choices'].forEach(choice=>{
-            //         Object.keys(choice).forEach(key=>{
-            //             if(key === event.target.value){
-            //                 choice[event.target.value] = true;
-            //             }
-            //             else{
-            //                 choice[key] = false;
-            //             }
-                        
-            //         })
-            //     })
-            // break;
-            // default:
+            break;
+            case "dropdown":
+                console.log(form[0]);
+                form[0]['entries'][index]['choices'].forEach((choice,subIndex)=>{
+                    if(choiceIndex === subIndex){
+                        form[0]['entries'][index]['choices'][choiceIndex]['selected'] = true;
+                    }
+                    else{
+                        Object.keys(form[0]['entries'][index]['choices'][subIndex]).forEach(key=>{
+                            form[0]['entries'][index]['choices'][subIndex]['selected'] = false;
+                        })
+                    }
+                })
+            break;
+            default:
 
         }
-       
-        console.log(form);
+    
         this.setState({ formFieldData:form });
     }
     render(){
@@ -228,40 +227,40 @@ class SubmittedForm extends React.Component{
                     </FormControl>
                     <br/></div>)
                 }
-                // else if(field.type === "radio"){
-                //     fields.push(<div className="margin-top-2" key={index}>
-                //     <FormControl component="fieldset" required={field.required}>
-                //         <FormLabel component="legend">{field.label}</FormLabel>
-                //         <RadioGroup name={field.label} value={field.label} >
+                else if(field.type === "radio"){
+                    fields.push(<div className="margin-top-2" key={index}>
+                    <FormControl component="fieldset" required={field.required}>
+                        <FormLabel component="legend">{field.label}</FormLabel>
+                        <RadioGroup name={field.label} value={field.label} >
                         
-                //             {field.choices.map((choice,choiceIndex)=>(
+                            {field.choices.map((choice,choiceIndex)=>(
                                 
                                 
-                //                 <FormControlLabel key={choice + choiceIndex}  label={choice.label} value={choice.label} name={choice.label} labelPlacement="end" 
-                //                 control={<Radio name={field.label} required={field.required} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} checked={this.props.form[0]['fields'][index]['choices'][choiceIndex]['selected']}/>
+                                <FormControlLabel key={choice + choiceIndex}  label={choice.label} value={choice.label} name={choice.label} labelPlacement="end" 
+                                control={<Radio name={field.label} required={field.required} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} checked={this.props.form[0]['fields'][index]['choices'][choiceIndex]['selected']}/>
                                
-                //                 } />
+                                } />
                                 
-                //             ))
-                //             }  
-                //         </RadioGroup>     
-                //     </FormControl>
-                //     <br/></div>)
+                            ))
+                            }  
+                        </RadioGroup>     
+                    </FormControl>
+                    <br/></div>)
                     
-                // }
-                // else if(field.type === "dropdown"){
-                //     fields.push(<div className="margin-top-2" key={index}>
-                //         <FormControl required={field.required}>
-                //             <InputLabel>{field.label}</InputLabel>
-                //             <Select onChange={event=>this.handleChange(index, null, field.type, event)}
-                //                 value={this.findSelected(index)}>
-                //                 {field.choices.map((choice,choiceIndex)=>(
-                //                     <MenuItem key={choice + choiceIndex} value={choice.label}>{choice.label}</MenuItem>
-                //                 ))}
-                //             </Select>
-                //         </FormControl>
-                //     </div>)
-                // }
+                }
+                else if(field.type === "dropdown"){
+                    fields.push(<div className="margin-top-2" key={index}>
+                        <FormControl required={field.required}>
+                            <InputLabel>{field.label}</InputLabel>
+                            <Select onChange={event=>this.handleChange(index, null, field.type, event)}
+                                value={this.findSelected(index)}>
+                                {field.choices.map((choice,choiceIndex)=>(
+                                    <MenuItem key={choice + choiceIndex} value={choice.label}>{choice.label}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </div>)
+                }
             })
         }
 
