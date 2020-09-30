@@ -13,6 +13,7 @@
     "babel-eslint": "^10.1.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-json-pretty": "^2.2.0",
     "react-json-tree": "^0.13.0",
     "react-json-view": "^1.19.1",
     "react-router-dom": "^5.2.0",

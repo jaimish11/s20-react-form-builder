@@ -22,19 +22,14 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import ReactJson from 'react-json-view';
-import JSONTree from 'react-json-tree';
+import JSONPretty from 'react-json-pretty';
+import JSONPrettyMonokai from 'react-json-pretty/themes/monikai.css';
 import Dialog from '@material-ui/core/Dialog';
-import MuiDialogContent from '@material-ui/core/DialogContent';
-import MuiDialogActions from '@material-ui/core/DialogActions';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import Grow from '@material-ui/core/Grow';
-import history from './history';
-import {
-    BrowserRouter as Router,
-    Redirect
-} from "react-router-dom";
+import CircularProgress from '@material-ui/core/CircularProgress';
 import api from './api';
-var uniqueString = require('unique-string');
 
 
 
@@ -52,14 +47,11 @@ class SubmittedForm extends React.Component{
                 ]
             }],
             form:'',
-            formID:'',
-            submitFormIsDisabled:true,
             returnedServerError: false,
             isDialogOpen: false
 
 
         }
-        this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.findSelected = this.findSelected.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleDialogClose = this.handleDialogClose.bind(this);
@@ -93,84 +85,11 @@ class SubmittedForm extends React.Component{
     return preselectedOption;
     }
 
-
     componentDidMount(){
-        //Form JSON to render on frontend
-        let formToRender = [...this.props.form];
-        let noOfFormFields = this.props.form[0].fields.length;
-        //Form JSON to store entered form data
-        let formFieldData = [...this.state.formFieldData]
-        // for(let i=0;i<noOfFormFields;i++){
-        //     let label = formToRender[0]['fields'][i]['label'];
-        //     let type = formToRender[0]['fields'][i]['type'];
-        //     //Populate submission form JSON based on form to render
-        //     switch(type){
-                
-        //         case "text":
-        //         case "textarea":
-                    
-        //             formFieldData[0]['entries'].push({
-        //                 [label]: ''
-        //             });
-        //         break;
-        //         case "checkbox":
-        //             formFieldData[0]['entries'].push({
-        //                 label:label,
-        //                 choices:[]
-        //             });
-        //             formToRender[0]['fields'][i]['choices'].forEach(choice=>{
-        //                 formFieldData[0]['entries'][i]['choices'].push({
-        //                     [choice.label]: choice.selected
-        //                 });
-        //             });
-        //         break;
-        //         case "radio":
-        //         case "dropdown":
-        //             formFieldData[0]['entries'].push({
-        //                 label:label,
-        //                 required: formToRender[0]['fields'][i]['required'],
-        //                 choices:[]
-        //             });
-        //             formToRender[0]['fields'][i]['choices'].forEach(choice=>{
-        //                 formFieldData[0]['entries'][i]['choices'].push({
-        //                     [choice.label]: choice.selected
-        //                 });
-        //             });
-        //         break;
-        //         default:
-        //     }
-           
-        // }
-        // this.setState({
-        //     form:this.props.form,
-        //     formFieldData:formFieldData
-        // });
-        
-        
-    }
-    
-    handleFormSubmit(e){
-        // e.preventDefault();
-        // var formID = uniqueString();
-        // console.log(formID);
-        // api.saveData(
-        // {
-        //     formID:formID, 
-        //     form:this.state.formFieldData 
-        // }
-        // ,true)
-        // .then(res=>{
-        //     this.setState({
-        //         formID:res.data.formID
-        //     })
-
-        // })
-        // .catch(error=>{
-        //     console.log(error);
-        //     this.setState({
-        //         returnedServerError: true
-        //     });
-        // })  
+        const form = [...this.state.formFieldData];
+        const values = [...this.props.form];
+        form[0]['entries'] = [...values[0]['fields']];
+        this.setState({ formFieldData:form });
     }
 
     //Populate form JSON based on type of field interacted with
@@ -206,7 +125,6 @@ class SubmittedForm extends React.Component{
             
             break;
             case "dropdown":
-                console.log(form[0]);
                 form[0]['entries'][index]['choices'].forEach((choice,subIndex)=>{
                     if(choiceIndex === subIndex){
                         form[0]['entries'][index]['choices'][choiceIndex]['selected'] = true;
@@ -224,6 +142,7 @@ class SubmittedForm extends React.Component{
     
         this.setState({ formFieldData:form });
     }
+
     render(){
         let fields = [];
         //Populate fields array based on dynamic JSON object - object rendered in render() method
@@ -285,12 +204,6 @@ class SubmittedForm extends React.Component{
             })
         }
 
-        //Once form is submitted successfully, automatically redirect to submissions page
-        if(this.state.formID){
-            let redirectURL = `/s20/view-submissions/${this.state.formID}`;
-            history.push(redirectURL);
-            return <Redirect to={{ pathname:redirectURL, state:this.state.formID}} />
-        }
         return(
             <div>
                 
@@ -298,11 +211,11 @@ class SubmittedForm extends React.Component{
                         {fields}
                     </CardContent>
                     <CardActions className="padding">
-                        <Button type="submit" disabled={this.state.submitFormIsDisabled} size="large" color="primary" variant="contained" onClick={this.handleDialogOpen}>VIEW JSON</Button>  
+                        <Button type="submit" size="large" color="primary" variant="contained" onClick={this.handleDialogOpen}>VIEW JSON</Button>  
                     </CardActions>
-                    <Dialog onClose={this.handleDialogClose} open={this.state.isDialogOpen}>
+                    <Dialog id="json-pretty-preview-dialog" onClose={this.handleDialogClose} open={this.state.isDialogOpen}>
                         <DialogContent>
-                            <ReactJson src={this.state.formFieldData[0]['entries']} theme="monokai" />
+                            <JSONPretty id="json-pretty-preview" data={this.state.formFieldData[0]['entries']} theme={JSONPrettyMonokai}/>
                         </DialogContent>
                     </Dialog>
                
@@ -339,7 +252,9 @@ class ConfigForm extends React.Component{
             addFieldIsDisabled:true,
             deleteFormIsDisabled: true,
             returnedServerError: false,
-            isFirstElement: true
+            isFirstElement: true,
+            isDeleteFormDialogOpen: false,
+            saveFormIsLoading: false
             
         };
         this.handleFormElementClick = this.handleFormElementClick.bind(this);
@@ -356,18 +271,31 @@ class ConfigForm extends React.Component{
         this.handleMoveDown = this.handleMoveDown.bind(this);
         this.handleMoveUp = this.handleMoveUp.bind(this);
 
+        this.handleOpenDeleteFormDialog = this.handleOpenDeleteFormDialog.bind(this);
+        this.handleCloseDeleteFormDialog = this.handleCloseDeleteFormDialog.bind(this);
+
         this.getVisibility = this.getVisibility.bind(this);
 
         this.fieldVisibility = {
 
         }
 
-   
+    }
 
+    handleOpenDeleteFormDialog(){
+        this.setState({
+            isDeleteFormDialogOpen:true
+        });
+    }
+
+    handleCloseDeleteFormDialog(){
+        this.setState({
+            isDeleteFormDialogOpen:false
+        });
     }
 
     getVisibility(type, index){
-        if(this.fieldVisibility[type+"-"+index] == undefined){
+        if(this.fieldVisibility[type+"-"+index] === undefined){
             this.fieldVisibility[type+"-"+index] = true;
         }
         return this.fieldVisibility[type+"-"+index];
@@ -452,7 +380,11 @@ class ConfigForm extends React.Component{
         const previewFormValues = [...this.state.previewFormFields];
         previewFormValues[0]['fields'] = [...values];
 
-
+        if(index===0){
+            this.setState({
+                saveFormIsDisabled:true
+            })
+        }
         //Disable delete form if last element remains
         if(event.target && index === 0){
             this.setState({
@@ -521,9 +453,12 @@ class ConfigForm extends React.Component{
         this.setState({
             formFields : [],
             previewFormFields: [{
-                fields:[{}]
+                fields:[]
             }],
-            deleteFormIsDisabled: true
+            deleteFormIsDisabled: true,
+            isDeleteFormDialogOpen:false,
+            saveFormIsDisabled:true
+            
         });
     }
 
@@ -572,12 +507,14 @@ class ConfigForm extends React.Component{
     handleConfigFormSubmit(e){
         e.preventDefault();
         this.setState({
-            saveFormIsDisabled:true
+            saveFormIsDisabled:true,
+            saveFormIsLoading:true
         })
         api.saveData(this.state.formFields)
         .then(res=>{
             this.setState({
-                formID: res
+                formID: res,
+                saveFormIsLoading:false
             });
             
         })  
@@ -586,7 +523,8 @@ class ConfigForm extends React.Component{
 
             this.setState({
                 saveFormIsDisabled:false,
-                returnedServerError: true
+                returnedServerError: true,
+                saveFormIsLoading:false
             });
         })
 
@@ -863,9 +801,27 @@ class ConfigForm extends React.Component{
 
                         <Grid container justify="center">
                             <CardActions>
-                                <Button disabled={this.state.saveFormIsDisabled} type="submit" size="large" color="primary" variant="contained">Save Form</Button>
-                                <Button disabled={this.state.deleteFormIsDisabled} type="button" size="large" color="secondary" variant="contained" onClick={this.handleClearFormClick}>Delete Form</Button>
-                            </CardActions>     
+                                <Button disabled={this.state.saveFormIsDisabled} type="submit" size="large" color="primary" variant="contained">{this.state.saveFormIsLoading && <CircularProgress color="inherit" size={27}/> }{!this.state.saveFormIsLoading && <span>Save Form</span>}</Button>
+                                <Button disabled={this.state.deleteFormIsDisabled} type="button" size="large" color="secondary" variant="contained" onClick={this.handleOpenDeleteFormDialog}>Delete Form</Button>
+                            </CardActions> 
+                            <Dialog onClose={this.handleCloseDeleteFormDialog} open={this.state.isDeleteFormDialogOpen}>
+                                <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+                                    Are you sure?
+                                </DialogTitle>
+                                <DialogContent>
+                                    <DialogContentText>
+                                        This will delete all your form fields. Are you sure you want to proceed?
+                                    </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                <Button autoFocus onClick={this.handleCloseDeleteFormDialog} color="primary">
+                                    No
+                                </Button>
+                                <Button onClick={this.handleClearFormClick} color="primary">
+                                    Yes
+                                </Button>
+                                </DialogActions>
+                            </Dialog>    
                         </Grid>
                         
                     
@@ -889,7 +845,7 @@ class ConfigForm extends React.Component{
                         <p className="underline-primary">Live Preview</p>
                         {this.state.previewFormFields[0]['fields'].length>0 && <SubmittedForm form={this.state.previewFormFields}/>}
                         <Grid container justify="center" style={{position: "absolute", bottom:"8px"}}>
-                            <Alert severity="info" variant="filled">Submissions aren't allowed from here. This is for testing purposes only</Alert>
+                            <Alert severity="info" variant="outlined" >Submissions aren't allowed from here. This is for testing purposes only</Alert>
                         </Grid>
                         
                     </CardContent>

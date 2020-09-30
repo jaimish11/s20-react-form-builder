@@ -135,3 +135,16 @@ body{
 .MuiAccordionDetails-root{
     flex-direction: column;
 }
+
+.__json-pretty__{
+    margin: 0px;
+    padding: 20px;
+}
+
+#json-pretty-preview-dialog .MuiDialogContent-root{
+    padding:0px;
+}
+
+.MuiDialog-paperWidthSm{
+    min-width: 400px;
+}
