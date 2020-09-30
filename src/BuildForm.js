@@ -14,7 +14,7 @@ import ArrowDropDownSharpIcon from '@material-ui/icons/ArrowDropDownSharp';
 import ArrowDropUpSharpIcon from '@material-ui/icons/ArrowDropUpSharp';
 import Alert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
-import { TextField } from '@material-ui/core';
+import { DialogActions, DialogContent, TextField } from '@material-ui/core';
 import stringUtility from './stringUtility';
 import Radio from '@material-ui/core/Radio';
 import FormControl from '@material-ui/core/FormControl';
@@ -22,8 +22,11 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import Fade from '@material-ui/core/Fade';
-import Collapse from '@material-ui/core/Collapse';
+import ReactJson from 'react-json-view';
+import JSONTree from 'react-json-tree';
+import Dialog from '@material-ui/core/Dialog';
+import MuiDialogContent from '@material-ui/core/DialogContent';
+import MuiDialogActions from '@material-ui/core/DialogActions';
 import Grow from '@material-ui/core/Grow';
 import history from './history';
 import {
@@ -51,14 +54,29 @@ class SubmittedForm extends React.Component{
             form:'',
             formID:'',
             submitFormIsDisabled:true,
-            returnedServerError: false
+            returnedServerError: false,
+            isDialogOpen: false
 
 
         }
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.findSelected = this.findSelected.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleDialogClose = this.handleDialogClose.bind(this);
+        this.handleDialogOpen = this.handleDialogOpen.bind(this);
     
+    }
+
+    handleDialogClose(){
+        this.setState({
+            isDialogOpen:false
+        });
+    }
+
+    handleDialogOpen(){
+        this.setState({
+            isDialogOpen:true
+        });
     }
 
     //Helper function to find selected value for dropdown
@@ -132,27 +150,27 @@ class SubmittedForm extends React.Component{
     }
     
     handleFormSubmit(e){
-        e.preventDefault();
-        var formID = uniqueString();
-        console.log(formID);
-        api.saveData(
-        {
-            formID:formID, 
-            form:this.state.formFieldData 
-        }
-        ,true)
-        .then(res=>{
-            this.setState({
-                formID:res.data.formID
-            })
+        // e.preventDefault();
+        // var formID = uniqueString();
+        // console.log(formID);
+        // api.saveData(
+        // {
+        //     formID:formID, 
+        //     form:this.state.formFieldData 
+        // }
+        // ,true)
+        // .then(res=>{
+        //     this.setState({
+        //         formID:res.data.formID
+        //     })
 
-        })
-        .catch(error=>{
-            console.log(error);
-            this.setState({
-                returnedServerError: true
-            });
-        })  
+        // })
+        // .catch(error=>{
+        //     console.log(error);
+        //     this.setState({
+        //         returnedServerError: true
+        //     });
+        // })  
     }
 
     //Populate form JSON based on type of field interacted with
@@ -212,10 +230,10 @@ class SubmittedForm extends React.Component{
         if(this.props.form.length > 0){
             this.props.form[0].fields.map((field, index)=>{
                 if(field.type === "text"){
-                    fields.push(<div key={index} className="width80 margin-top-1"><TextField disabled fullWidth id="outlined-basic" value={this.props.form[0]['fields'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
+                    fields.push(<div key={index} className="width80 margin-top-1"><TextField  fullWidth id="outlined-basic" value={this.props.form[0]['fields'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
                 }
                 else if(field.type === "textarea"){
-                    fields.push(<div key={index} className="width80 margin-top-1"><TextField disabled fullWidth multiline helperText="You can enter multiple lines here" id="outlined-basic" value={this.props.form[0]['fields'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
+                    fields.push(<div key={index} className="width80 margin-top-1"><TextField  fullWidth multiline helperText="You can enter multiple lines here" id="outlined-basic" value={this.props.form[0]['fields'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
                 }
                 else if(field.type === "checkbox"){
                     fields.push(<div className="margin-top-2" key={index}>
@@ -224,7 +242,7 @@ class SubmittedForm extends React.Component{
                         <FormGroup>
                             {field.choices.map((choice,choiceIndex)=>(
                                 <FormControlLabel key={choice+choiceIndex} label={choice.label} labelPlacement="end" 
-                                control={<Checkbox color="primary" disabled type={field.type} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} value={choice.label} checked={this.props.form[0]['fields'][index]['choices'][choiceIndex]['selected']}/>} />
+                                control={<Checkbox color="primary" type={field.type} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} value={choice.label} checked={this.props.form[0]['fields'][index]['choices'][choiceIndex]['selected']}/>} />
                             ))}  
                         </FormGroup>     
                     </FormControl>
@@ -240,7 +258,7 @@ class SubmittedForm extends React.Component{
                                 
                                 
                                 <FormControlLabel key={choice + choiceIndex}  label={choice.label} value={choice.label} name={choice.label} labelPlacement="end" 
-                                control={<Radio name={field.label} disabled required={field.required} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} checked={this.props.form[0]['fields'][index]['choices'][choiceIndex]['selected']}/>
+                                control={<Radio name={field.label} required={field.required} onChange={event=>this.handleChange(index, choiceIndex, field.type, event)} checked={this.props.form[0]['fields'][index]['choices'][choiceIndex]['selected']}/>
                                
                                 } />
                                 
@@ -258,7 +276,7 @@ class SubmittedForm extends React.Component{
                             <Select onChange={event=>this.handleChange(index, null, field.type, event)}
                                 value={this.findSelected(index)}>
                                 {field.choices.map((choice,choiceIndex)=>(
-                                    <MenuItem disabled key={choice + choiceIndex} value={choice.label}>{choice.label}</MenuItem>
+                                    <MenuItem key={choice + choiceIndex} value={choice.label}>{choice.label}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
@@ -275,17 +293,24 @@ class SubmittedForm extends React.Component{
         }
         return(
             <div>
-                <form onSubmit={this.handleFormSubmit}>
+                
                     <CardContent>
                         {fields}
                     </CardContent>
                     <CardActions className="padding">
-                        <Button type="submit" disabled={this.state.submitFormIsDisabled} size="large" color="primary" variant="contained">Submit Form</Button>  
+                        <Button type="submit" disabled={this.state.submitFormIsDisabled} size="large" color="primary" variant="contained" onClick={this.handleDialogOpen}>VIEW JSON</Button>  
                     </CardActions>
-                </form>
+                    <Dialog onClose={this.handleDialogClose} open={this.state.isDialogOpen}>
+                        <DialogContent>
+                            <ReactJson src={this.state.formFieldData[0]['entries']} theme="monokai" />
+                        </DialogContent>
+                    </Dialog>
+               
+                
                 <Snackbar open={this.state.returnedServerError} autoHideDuration={3000} onClose={() => this.setState({returnedServerError: false})}>
                     <Alert severity="error" variant="filled" onClose={() => this.setState({returnedServerError: false})}>SERVER ERROR</Alert>
                 </Snackbar>
+                
             </div>
                 
 
@@ -858,11 +883,15 @@ class ConfigForm extends React.Component{
                     </form>
                 
                 </div>
-                <Card className="flex-1">
+                <Card className="flex-1" style={{ position:"relative" }}>
                     <CardContent>
 
                         <p className="underline-primary">Live Preview</p>
                         {this.state.previewFormFields[0]['fields'].length>0 && <SubmittedForm form={this.state.previewFormFields}/>}
+                        <Grid container justify="center" style={{position: "absolute", bottom:"8px"}}>
+                            <Alert severity="info" variant="filled">Submissions aren't allowed from here. This is for testing purposes only</Alert>
+                        </Grid>
+                        
                     </CardContent>
                     
                 </Card>
