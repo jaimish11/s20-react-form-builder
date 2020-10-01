@@ -20,6 +20,7 @@
 6. ~~Switching order of options in the form builder.~~
 7. Draggable options in form builder. 
 8. Dark mode toggle (the holy grail)
+9. View JSON option - partially implemented but needs fixing
 
 
 
