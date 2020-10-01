@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Alert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import api from './api';
 
 /**
@@ -112,7 +113,8 @@ export default class FormSubmissions extends React.Component{
             formData:'',
             redirect:'',
             viewFormSubmissionsIsDisabled: false,
-            returnedServerError: false
+            returnedServerError: false,
+            viewFormSubmissionsIsLoading:false
         }
         this.handleSubmissionsFormSubmit = this.handleSubmissionsFormSubmit.bind(this);
         this.handleFormIDChange = this.handleFormIDChange.bind(this);
@@ -146,19 +148,22 @@ export default class FormSubmissions extends React.Component{
     handleSubmissionsFormSubmit(e){
         e.preventDefault();
         this.setState({
-            viewFormSubmissionsIsDisabled:true
+            viewFormSubmissionsIsDisabled:true,
+            viewFormSubmissionsIsLoading:true
         });
         api.getForm(this.state.formID, true)
         .then(form=>{
             this.setState({
-                formData:form
+                formData:form,
+                viewFormSubmissionsIsLoading:false
             });
 
         })
         .catch(error=>{
             this.setState({
                 viewFormSubmissionsIsDisabled:false,
-                returnedServerError:true
+                returnedServerError:true,
+                viewFormSubmissionsIsLoading:false
             })
         })
     }
@@ -166,12 +171,12 @@ export default class FormSubmissions extends React.Component{
     render(){
         return(
             <Card className="center">
-                <p className="underline-primary">Form Submissions</p>
+                <Typography><p className="underline-primary">Form Submissions</p></Typography>
                 <form onSubmit={this.handleSubmissionsFormSubmit}>
                     <CardContent>
                     <div className="flex-rows">
                         <TextField className="flex-1" id="outlined-basic" label="Enter form ID" variant="outlined" value={this.state.formID} onChange={this.handleFormIDChange}/>
-                        <Button className="flex-1 margin-left-1" disabled={this.state.viewFormSubmissionsIsDisabled} id="view-submissions-btn" type="submit" size="large" color="primary" variant="contained">View Form Submissions</Button>
+                        <Button className="flex-1 margin-left-1" disabled={this.state.viewFormSubmissionsIsDisabled} id="view-submissions-btn" type="submit" size="large" color="primary" variant="contained">{this.state.viewFormSubmissionsIsLoading && <CircularProgress color="inherit" size={27}/> }{!this.state.viewFormSubmissionsIsLoading && <span>View Form Submissions</span>}</Button>
                         <div className="flex-1"></div>
                     </div>
                         

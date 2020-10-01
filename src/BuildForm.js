@@ -29,6 +29,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Grow from '@material-ui/core/Grow';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Typography from '@material-ui/core/Typography';
 import api from './api';
 
 
@@ -48,7 +49,8 @@ class SubmittedForm extends React.Component{
             }],
             form:'',
             returnedServerError: false,
-            isDialogOpen: false
+            isDialogOpen: false,
+            viewJSONIsDisabled:true
 
 
         }
@@ -84,6 +86,7 @@ class SubmittedForm extends React.Component{
     });
     return preselectedOption;
     }
+
 
     componentDidMount(){
         const form = [...this.state.formFieldData];
@@ -146,8 +149,8 @@ class SubmittedForm extends React.Component{
     render(){
         let fields = [];
         //Populate fields array based on dynamic JSON object - object rendered in render() method
-        if(this.props.form.length > 0){
-            this.props.form[0].fields.map((field, index)=>{
+        if(this.props.form[0]['fields'].length > 0){
+            this.props.form[0]['fields'].map((field, index)=>{
                 if(field.type === "text"){
                     fields.push(<div key={index} className="width80 margin-top-1"><TextField  fullWidth id="outlined-basic" value={this.props.form[0]['fields'][index][field.label]} onChange={event=>this.handleChange(index, null, field.type, event)} name={field.label} label={field.label} variant="outlined" required={field.required}/><br/></div>)
                 }
@@ -211,7 +214,7 @@ class SubmittedForm extends React.Component{
                         {fields}
                     </CardContent>
                     <CardActions className="padding">
-                        <Button type="submit" size="large" color="primary" variant="contained" onClick={this.handleDialogOpen}>VIEW JSON</Button>  
+                        <Button type="submit" disabled={this.state.viewJSONIsDisabled} size="large" color="primary" variant="contained" onClick={this.handleDialogOpen}>VIEW JSON</Button>  
                     </CardActions>
                     <Dialog id="json-pretty-preview-dialog" onClose={this.handleDialogClose} open={this.state.isDialogOpen}>
                         <DialogContent>
@@ -547,11 +550,12 @@ class ConfigForm extends React.Component{
             pointerEvents:"none",
             color: "rgba(0, 0, 0, 0.12)",
         }
+        console.log(this.state.previewFormFields);
         return(
             <div className="flex-rows">
                 <div className="flex-1">
                     <CardContent>
-                    <p className="underline-primary">Build Form</p>
+                    <Typography><p className="underline-primary">Build Form</p> </Typography> 
                         <div className="flex-cols">
                             <div className="flex-rows margin-top-1">
 
@@ -842,7 +846,7 @@ class ConfigForm extends React.Component{
                 <Card className="flex-1" style={{ position:"relative" }}>
                     <CardContent>
 
-                        <p className="underline-primary">Live Preview</p>
+                        <Typography><p className="underline-primary">Live Preview</p></Typography>
                         {this.state.previewFormFields[0]['fields'].length>0 && <SubmittedForm form={this.state.previewFormFields}/>}
                         <Grid container justify="center" style={{position: "absolute", bottom:"8px"}}>
                             <Alert severity="info" variant="outlined" >Submissions aren't allowed from here. This is for testing purposes only</Alert>

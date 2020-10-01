@@ -14,6 +14,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Typography from '@material-ui/core/Typography';
 import api from './api';
 import { TextField } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
@@ -259,7 +260,6 @@ class SubmittedForm extends React.Component{
         }
         return(
             <div>
-                <p className="underline-primary">Your Form</p>
                 <form onSubmit={this.handleFormSubmit}>
                     <CardContent>
                         {fields}
@@ -297,7 +297,8 @@ export default class ViewFormNew extends React.Component{
             formsStore:[],
             newFormRequested:false,
             viewFormIsDisabled: false,
-            returnedServerError: false
+            returnedServerError: false,
+            viewFormIsLoading:false
             
         }
         this.handleTextFieldChange = this.handleTextFieldChange.bind(this);
@@ -346,25 +347,25 @@ export default class ViewFormNew extends React.Component{
     handleOnClick(e){
         e.preventDefault();
         this.setState({
-            viewFormIsDisabled:true
+            viewFormIsDisabled:true,
+            viewFormIsLoading:true
         });
         api.getForm(this.state.formID)
         .then(form=>{
             this.setState({
-                
                 formData:''
             });
             this.setState({
-
-                formData:form[0]
-
-            })
+                formData:form[0],
+                viewFormIsLoading:false
+            });
 
         })
         .catch(error=>{
             this.setState({
                 returnedServerError: true,
-                viewFormIsDisabled:false
+                viewFormIsDisabled:false,
+                viewFormIsLoading:false
             });
         })
     }
@@ -372,13 +373,13 @@ export default class ViewFormNew extends React.Component{
        
         return(
             <Card className="center">
-                <p className="underline-primary">View Form</p>
+                <Typography><p className="underline-primary"></p></Typography>
                 <form /*onSubmit={this.handleViewFormSubmit}*/>
                     <CardContent>
                         <div className="flex-rows">
                             <TextField className="flex-1" id="outlined-basic" label="Enter form ID" variant="outlined" value={this.state.formID} onChange={this.handleTextFieldChange}/> 
                             
-                            <Button className="flex-1 margin-left-1" disabled={this.state.viewFormIsDisabled} id="view-form-btn" type="submit" size="large" color="primary" variant="contained" onClick={this.handleOnClick}>View Form</Button>
+                            <Button className="flex-1 margin-left-1" disabled={this.state.viewFormIsDisabled} id="view-form-btn" type="submit" size="large" color="primary" variant="contained" onClick={this.handleOnClick}>{this.state.viewFormIsLoading && <CircularProgress color="inherit" size={27}/> }{!this.state.viewFormIsLoading && <span>View Form</span>}</Button>
                             <div className="flex-1"></div>
                         </div>
    
