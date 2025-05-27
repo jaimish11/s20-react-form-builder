@@ -65,8 +65,9 @@ npm install && npm start
 > [Watch the demo video here](https://www.loom.com/share/66dfb5a20d22447eb1e4f6fdf522107c?sid=e6125760-27e2-4cec-8e11-62d7af87cba2)  
 > _(Recorded before MUI upgrade — some visual polish still in progress)_
 
-## 🔭 Future Improvements
+## 🔭 Future Improvements/TODO
 
+- [ ] Fix checkbox field rendering and state handling post-TypeScript refactor
 - [ ] Add more field types: file upload, textarea, datepicker
 - [ ] Improve mobile responsiveness
 - [ ] Add visual improvements post-MUI v5 upgrade

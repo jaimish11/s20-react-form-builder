@@ -15,7 +15,7 @@ export const saveFormConfiguration = async (
   formFields: FormField[]
 ): Promise<string> => {
   try {
-    const response = await axios.post(API_ROUTES.SAVE_FORM, formFields);
+    const response = await axios.post(API_ROUTES.CREATE_FORM, formFields);
 
     console.log(response.data);
     if (response.data && response.data.length > 0) {
@@ -38,7 +38,7 @@ export const saveFormSubmission = async (
 ): Promise<AxiosResponse> => {
   try {
     const response = await axios.post(
-      API_ROUTES.SAVE_FORM_ENTRIES,
+      API_ROUTES.SAVE_FORM_SUBMISSIONS,
       submissionData
     );
     return response;
@@ -68,7 +68,7 @@ export const getForm = async (formId: string): Promise<any> => {
  */
 export const getFormSubmissions = async (formId: string): Promise<any> => {
   try {
-    const response = await axios.get(API_ROUTES.GET_FORM_ENTRIES(formId));
+    const response = await axios.get(API_ROUTES.GET_FORM_SUBMISSIONS(formId));
     return response.data;
   } catch (error) {
     console.error("Error fetching form submissions:", error);
