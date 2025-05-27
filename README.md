@@ -1,93 +1,84 @@
-## Simple form builder app
+# 🧱 Form Builder App
 
-## Instructions to run:
-1. Once you clone the repo, navigate to the s20-form-builder directory:
-### `cd s20-form-builder`
+A simple but extensible form builder that allows users to dynamically create and preview forms with various field types.  
+Originally built for a take-home challenge and recently modernized to align with current best practices using TypeScript and Material UI v5.
 
-2. Install the required modules:
-### `npm install`
+## 🚀 Tech Stack
 
-3. Run the dev server:
-### `npm start`
+- **Frontend**: React, TypeScript
+- **Styling/UI**: Material UI v5
+- **State Management**: React Hooks
+- **Bundler/Tooling**: Create React App
+- **Planned Infrastructure**: AWS S3 + CloudFront for hosting, CDK for infrastructure-as-code
 
+## 🧩 Existing Features
 
-## Todos + Future feature list
-1. ~~Proper display of errors and warning messages on frontend using proper Material UI components e.g network failure, or if the API request didn't go through for whatever reason. Currently, all errors are just logged to the console. ~~
-2. Proper validation on build form page along with more fields such as file uploads, textareas etc. 
-3. Hosting
-4. Responsiveness for mobile and other UI tweaks such as highlighting the active navigation links and loading icons on the buttons. 
-5. ~~Live preview while form is being built~~
-6. ~~Switching order of options in the form builder.~~
-7. Draggable options in form builder. 
-8. Dark mode toggle (the holy grail)
-9. View JSON option - partially implemented but needs fixing
+- Add text inputs, dropdowns, and more
+- Live preview as you build your form
+- Reorder or remove fields
+- Form submission and response logging
 
+## 📦 Getting Started
 
+### 1. Clone the repo
 
+```bash
+git clone https://github.com/your-user/s20-form-builder.git
+cd s20-form-builder
+```
 
-## Available Scripts
+### 2. Install dependencies
 
-In the project directory, you can run:
+```bash
+npm install
+```
 
-### `npm start`
+### 3. Run the app locally
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```bash
+npm start
+```
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
-### `npm test`
+> If you're using Node.js v17+, the following environment variable may be required:
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+export NODE_OPTIONS=--openssl-legacy-provider
+```
 
-### `npm run build`
+### 4. Clone the backend repo:
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+git clone https://github.com/jaimish11/s20-form-builder-api.git
+cd s20-form-builder-api
+```
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+### 5. Install packages and start:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm install && npm start
+```
 
-### `npm run eject`
+## 🎥 Demo
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+> [Watch the demo video here](https://www.loom.com/share/66dfb5a20d22447eb1e4f6fdf522107c?sid=e6125760-27e2-4cec-8e11-62d7af87cba2)  
+> _(Recorded before MUI upgrade — some visual polish still in progress)_
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🔭 Future Improvements
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- [ ] Add more field types: file upload, textarea, datepicker
+- [ ] Improve mobile responsiveness
+- [ ] Add visual improvements post-MUI v5 upgrade
+- [ ] Add AWS CDK-based infrastructure setup
+- [ ] Add basic testing (form logic, UI behavior)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## 🛠️ Architecture Notes
 
-## Learn More
+- The app was originally built with React + JavaScript and later refactored to use **TypeScript** for type safety and maintainability.
+- UI was upgraded to **Material UI v5**, with minor layout and style tweaks still in progress.
+- Designed to be **stateless on the frontend** and integrates with a backend for submission handling.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🤝 Contribution & Scope
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+That said, the architecture and implementation decisions are documented for transparency and learning purposes. Suggestions and/or improvements are always welcome.
